@@ -1,0 +1,38 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:dialog="clr-namespace:MetroDialog;assembly=MetroDialog"
+             x:Class="GotifyDesktop.Views.AddServerView">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="3*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="3*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="1*"/>
+      </Grid.ColumnDefinitions>
+      <ComboBox Background="White" Margin="5" Grid.Column="1" Grid.Row="1" Items="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
+      <TextBox Margin="5" Grid.Column="1" Grid.Row="2" Watermark="Server Url" Text="{Binding Url}" UseFloatingWatermark="True"/>
+      <TextBox Margin="5" Grid.Column="1" Grid.Row="3" Watermark="Server Port" Text="{Binding Port}" UseFloatingWatermark="True"/>
+      <TextBox Margin="5" Grid.Column="1" Grid.Row="4" Watermark="Server Path" Text="{Binding Path, FallbackValue=/}" UseFloatingWatermark="True"/>
+      <TextBox Margin="5" Grid.Column="1" Grid.Row="5" Watermark="Username" Text="{Binding Username}" UseFloatingWatermark="True"/>
+      <TextBox Margin="5" Grid.Column="1" Grid.Row="6" Watermark="Password" Text="{Binding Password}" UseFloatingWatermark="True"/>
+      <Button Content="Test Connection" Grid.Column="1" Grid.Row="7" Margin="5" HorizontalAlignment="Left" Command="{Binding CheckConnection}"/>
+      <DockPanel Grid.Column="1" Grid.Row="8">
+        <Button Content="Save" Command="{Binding Save}" Margin="5" HorizontalAlignment="Center"></Button>
+        <Button Content="Cancel" Command="{Binding Close}" Margin="5" HorizontalAlignment="Right"></Button>
+      </DockPanel>
+    </Grid>
+</UserControl>

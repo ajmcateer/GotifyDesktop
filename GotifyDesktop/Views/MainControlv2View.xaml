@@ -1,0 +1,84 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Name="MainControl"
+             x:Class="GotifyDesktop.Views.MainControlv2View">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="22"/>
+      <RowDefinition Height="1*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="1*"/>
+      <ColumnDefinition Width="3*"/>
+    </Grid.ColumnDefinitions>
+      <Menu Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" Background="#3f51b5">
+        <MenuItem Header="File" Background="#3f51b5">
+          <MenuItem Header="Exit" Background="#3f51b5"></MenuItem>
+        </MenuItem>
+      </Menu>
+      <ListBox Grid.Row="1"
+               ScrollViewer.VerticalScrollBarVisibility="Disabled"
+               Background="#424242"
+               SelectionMode="Single" 
+               SelectedItem="{Binding SelectedItem}" 
+               BorderThickness="0" 
+               Grid.Column="0" 
+               Grid.RowSpan="3" 
+               Items="{Binding Applications}">
+        <ListBox.ItemTemplate>
+        <DataTemplate>
+          <DockPanel>
+            <TextBlock Foreground="White" DockPanel.Dock="Top" Height="32" FontSize="20" HorizontalAlignment="Left" Text="{Binding name}"></TextBlock>
+          </DockPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+    <ScrollViewer Grid.Column="1" Grid.Row="1">
+      <ItemsControl Background="Gold"
+                    Grid.Row="1"
+                    BorderThickness="0"
+                    Grid.Column="1"
+                    Items="{Binding MessageModels}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border HorizontalAlignment="Center"
+              MinWidth="600"
+              MaxWidth="600"
+              Margin="10"
+              Background="#424242"
+              BorderBrush="#424242"
+              BorderThickness="2"
+              CornerRadius="3"
+              Padding="4">
+              <DockPanel>
+                <Image Source="avares://GotifyDesktop/Assets/defaultapp.png" 
+                       Height="64" 
+                       Width="64" 
+                       DockPanel.Dock="Left">
+                </Image>
+                <TextBlock Foreground="White" 
+                           DockPanel.Dock="Top" 
+                           Height="32"
+                           TextWrapping="Wrap"
+                           FontSize="20" 
+                           HorizontalAlignment="Left" 
+                           Text="{Binding title}">
+                </TextBlock>
+                <TextBlock Foreground="White" 
+                           DockPanel.Dock="Bottom"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Left" 
+                           FontSize="14" 
+                           Text="{Binding message}">
+                </TextBlock>
+              </DockPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

@@ -1,0 +1,28 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GotifyDesktop.Views.ApplicationView"
+             Background="#303030">  
+  <ItemsControl Grid.Row="0" BorderThickness="0" Grid.Column="1" Grid.RowSpan="3" Items="{Binding MessageModels}">
+    <ItemsControl.ItemTemplate>
+      <DataTemplate>
+        <Border HorizontalAlignment="Center"
+          MinWidth="450"
+          Margin="10"
+          Background="#424242"
+          BorderBrush="#424242"
+          BorderThickness="2"
+          CornerRadius="3"
+          Padding="4">
+          <DockPanel>
+            <Image Source="avares://GotifyDesktop/Assets/defaultapp.png" Height="64" Width="64" DockPanel.Dock="Left"></Image>
+            <TextBlock Foreground="White" DockPanel.Dock="Top" Height="32" FontSize="20" HorizontalAlignment="Left" Text="{Binding title}"></TextBlock>
+            <TextBlock Foreground="White" DockPanel.Dock="Bottom" HorizontalAlignment="Left" FontSize="14" Text="{Binding message}"></TextBlock>
+          </DockPanel>
+        </Border>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

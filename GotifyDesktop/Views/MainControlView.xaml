@@ -1,0 +1,25 @@
+﻿<controls:UserControl
+    xmlns:controls="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="GotifyDesktop.Views.MainControlView">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="22"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Menu Grid.Row="0" Foreground="White" Background="#3f51b5">
+            <MenuItem Header="File" Background="#3f51b5">
+                <MenuItem Header="Exit" Background="#3f51b5"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <TabControl Grid.Row="1" Grid.Column="0" Background="#303030" HorizontalAlignment="Stretch" TabStripPlacement="Left" Items="{Binding TabItems}" />
+    </Grid>
+</controls:UserControl>

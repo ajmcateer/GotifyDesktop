@@ -1,0 +1,68 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:GotifyDesktop.ViewModels;assembly=GotifyDesktop"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="GotifyDesktop.Views.MainWindow"
+        Name="MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="GotifyDesktop"
+        Background="#303030"
+        Content="{Binding Content}">
+
+    <i:Interaction.Behaviors>
+      <ia:EventTriggerBehavior EventName="Opened" SourceObject="{Binding MainWindow}">
+        <ia:CallMethodAction TargetObject="{Binding}" MethodName="Initialize"/>
+      </ia:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+    <Window.Styles>
+
+      <Style Selector="TabControl">
+        <Setter Property="Background" Value="#303030"/>
+      </Style>
+      <Style Selector="TabControl WrapPanel">
+        <Setter Property="Background" Value="#303030"/>
+      </Style>
+
+      <Style Selector="TabItem">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Width" Value="100"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="#303030"/>
+        <Setter Property="Foreground" Value="#F0F0F0"/>
+        <Setter Property="Margin" Value="0 0 0 0"/>
+        <Setter Property="Padding" Value="10 0"/>
+      </Style>
+      <Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#124078"/>
+      </Style>
+
+      <Style Selector="TabItem:focus">
+        <Setter Property="Foreground" Value="#2B579A"/>
+        <Setter Property="Margin" Value="0 0 0 0"/>
+        <Setter Property="Padding" Value="10 0"/>
+      </Style>
+      <Style Selector="TabItem:focus /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#f0f0f0"/>
+      </Style>
+
+      <Style Selector="TabItem:selected">
+        <Setter Property="Foreground" Value="#2B579A"/>
+        <Setter Property="Margin" Value="0 0 0 0"/>
+        <Setter Property="Padding" Value="10 0"/>
+      </Style>
+      <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#f0f0f0"/>
+      </Style>
+
+    </Window.Styles>
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+</Window>
