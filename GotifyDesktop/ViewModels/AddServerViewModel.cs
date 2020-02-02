@@ -55,7 +55,7 @@ namespace GotifyDesktop.ViewModels
             Settings.Path = Path;
 
             var gotifyService = container.Resolve<GotifyService>();
-            gotifyService.Configure(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
+            //gotifyService.Configure(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
 
             var databaseService = container.Resolve<DatabaseService>();
             var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol);

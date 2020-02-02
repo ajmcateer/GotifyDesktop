@@ -60,12 +60,11 @@ namespace GotifyDesktop.ViewModels
             else
             {
                 gotifyService.Configure(server.Url, server.Port, server.Username, server.Password, server.Path, server.Protocol);
+                await syncService.FullSyncAsync();
+                await MainControlv2.initAsync();
+                gotifyService.InitWebsocket();
+                Content = MainControlv2;
             }
-
-            await syncService.FullSyncAsync();
-            await MainControlv2.initAsync();
-            gotifyService.InitWebsocket();
-            Content = MainControlv2;
         }
     }
 }
