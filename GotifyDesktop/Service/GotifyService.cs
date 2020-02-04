@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using GotifyDesktop.Models;
@@ -19,13 +20,20 @@ namespace GotifyDesktop.Service
         {
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
             GotifySharp _gotifySharp = new GotifySharp(config);
-            var res = await _gotifySharp.GetApplications();
-
-            if (res.Success)
+            try
             {
-                return true;
+                var res = await _gotifySharp.GetApplications();
+
+                if (res.Success)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
+            catch (HttpRequestException)
             {
                 return false;
             }
