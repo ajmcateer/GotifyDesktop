@@ -20,7 +20,6 @@ namespace GotifyDesktop.ViewModels
         IContainer container;
 
         DatabaseContext dbcontext;
-        SettingService settings;
         GotifyService gotifyService;
         SyncService syncService;
 
@@ -30,11 +29,15 @@ namespace GotifyDesktop.ViewModels
             private set => this.RaiseAndSetIfChanged(ref content, value);
         }
 
+        public MainWindowViewModel()
+        {
+
+        }
+
         public MainWindowViewModel(IContainer container)
         {
             this.container = container;
 
-            settings = container.Resolve<SettingService>();
             dbcontext = container.Resolve<DatabaseContext>();
             gotifyService = container.Resolve<GotifyService>();
             syncService = container.Resolve<SyncService>();
@@ -42,6 +45,7 @@ namespace GotifyDesktop.ViewModels
             addServerViewModel = new AddServerViewModel(container);
             addServerViewModel.saveServerEvent += AddServerViewModel_saveServerEventAsync;
             MainControlv2 = new MainControlv2ViewModel(container);
+            //Initialize(this, null);
         }
 
         private async void AddServerViewModel_saveServerEventAsync()
@@ -61,7 +65,7 @@ namespace GotifyDesktop.ViewModels
             {
                 gotifyService.Configure(server.Url, server.Port, server.Username, server.Password, server.Path, server.Protocol);
                 await syncService.FullSyncAsync();
-                await MainControlv2.initAsync();
+                await MainControlv2.InitAsync();
                 gotifyService.InitWebsocket();
                 Content = MainControlv2;
             }

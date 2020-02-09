@@ -1,17 +1,11 @@
 ﻿using Autofac;
-using GotifyDesktop.Infrastructure;
+using GotifyDesktop.Service;
+using gotifySharp.Models;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using GotifyDesktop.Service;
-using gotifySharp.Responses;
-using ReactiveUI;
-using gotifySharp.Models;
-using GotifyDesktop.Models;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 
 namespace GotifyDesktop.ViewModels
 {
@@ -70,7 +64,7 @@ namespace GotifyDesktop.ViewModels
             MessageModels = new ObservableCollection<MessageModel>(res);
         }
 
-        public async Task initAsync()
+        public async Task InitAsync()
         {
             try
             {

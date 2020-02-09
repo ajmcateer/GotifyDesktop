@@ -8,33 +8,47 @@ using gotifySharp;
 using gotifySharp.Interfaces;
 using gotifySharp.Models;
 using gotifySharp.Responses;
+using Serilog;
 
 namespace GotifyDesktop.Service
 {
     public class GotifyService
     {
         private GotifySharp gotifySharp;
+        ILogger _logger;
         public event EventHandler<MessageModel> OnMessage;
+
+        public GotifyService(ILogger logger)
+        {
+            //this.gotifySharp = gotifySharp;
+            this._logger = logger;
+        }
 
         public async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, String Protocol)
         {
+            _logger.Information("Starting Connection Test");
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
-            GotifySharp _gotifySharp = new GotifySharp(config);
+            GotifySharp gotifySharp = new GotifySharp(config);
+            _logger.Debug("GotifySharp Configured");
+
             try
             {
-                var res = await _gotifySharp.GetApplications();
+                var res = await gotifySharp.GetApplications();
 
                 if (res.Success)
                 {
+                    _logger.Information("Test Success");
                     return true;
                 }
                 else
                 {
+                    _logger.Information("Test Failed");
                     return false;
                 }
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException HttpExcep)
             {
+                _logger.Error(HttpExcep, "Test Failed");
                 return false;
             }
         }
@@ -80,14 +94,7 @@ namespace GotifyDesktop.Service
             var messageGetResponse = await gotifySharp.GetMessageForApplicationAsync(id);
             foreach(MessageModel response in messageGetResponse.MessageGetModel.messages)
             {
-                MessageModel mess = new MessageModel();
-                mess.appid = response.appid;
-                mess.date = response.date;
-                mess.id = response.id;
-                mess.message = response.message;
-                mess.priority = response.priority;
-                mess.title = response.title;
-                messages.Add(mess);
+                messages.Add(response);
             }
             return messages;
         }

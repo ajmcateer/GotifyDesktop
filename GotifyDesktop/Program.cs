@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Autofac;
 using Autofac.Core;
+using AutofacSerilogIntegration;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Logging.Serilog;
@@ -10,12 +11,18 @@ using GotifyDesktop.Infrastructure;
 using GotifyDesktop.Service;
 using GotifyDesktop.ViewModels;
 using GotifyDesktop.Views;
+using gotifySharp;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
 namespace GotifyDesktop
 {
     class Program
     {
+        public static LoggingLevelSwitch loggingLevelSwitch;
+
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
@@ -33,10 +40,19 @@ namespace GotifyDesktop
         private static void AppMain(Application app, string[] args)
         {
             var builder = new ContainerBuilder();
+            loggingLevelSwitch = new LoggingLevelSwitch();
+            loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.ControlledBy(loggingLevelSwitch)
+                .WriteTo.Console()
+                .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
 
             // Register individual components
-            builder.RegisterType<DatabaseContext>().SingleInstance();
-            builder.RegisterType<SettingService>().SingleInstance();
+            builder.RegisterType<DatabaseContext>();
+            builder.RegisterLogger();
+            builder.RegisterType<GotifySharp>();
             builder.RegisterType<GotifyService>().SingleInstance();
             builder.RegisterType<GotifyService>().Named<GotifyService>("TestService");
             builder.RegisterType<DatabaseService>();

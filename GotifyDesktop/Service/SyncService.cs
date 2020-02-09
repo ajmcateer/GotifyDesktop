@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using gotifySharp.Models;
+using Serilog;
 
 namespace GotifyDesktop.Service
 {
@@ -12,14 +13,16 @@ namespace GotifyDesktop.Service
     {
         DatabaseService databaseService;
         GotifyService gotifyService;
+        ILogger _logger;
         //returns the appid that the message came in on.
         public event EventHandler<int> OnMessageRecieved;
         List<ApplicationModel> applications;
 
-        public SyncService(DatabaseService databaseService, GotifyService gotifyService)
+        public SyncService(DatabaseService databaseService, GotifyService gotifyService, ILogger logger)
         {
             this.databaseService = databaseService;
             this.gotifyService = gotifyService;
+            this._logger = logger;
             gotifyService.OnMessage += GotifyService_OnMessage;
             applications = databaseService.GetApplications();
         }
@@ -31,6 +34,7 @@ namespace GotifyDesktop.Service
 
         private void GotifyService_OnMessage(object sender, MessageModel e)
         {
+            _logger.Information("Message Received");
             databaseService.InsertMessage(e);
             OnMessageRecieved?.Invoke(this, e.appid);
         }
@@ -69,8 +73,10 @@ namespace GotifyDesktop.Service
 
             foreach (var app in updatedApps)
             {
-                if (!applications.Contains(app))
+                _logger.Debug($"Checking for {app.name}");
+                if (!applications.Any(x => x.id == app.id))
                 {
+                    _logger.Information($"{app.name} not found adding to list");
                     databaseService.InsertApplication(app);
                 }
             }
@@ -82,12 +88,13 @@ namespace GotifyDesktop.Service
         {
             foreach(var app in applications)
             {
-                if (!updatedApps.Contains(app))
+                _logger.Debug($"Checking for {app.name}");
+                if (!updatedApps.Any(x => x.id == app.id))
                 {
+                    _logger.Information($"{app.name} found deleting from list");
                     databaseService.DeleteApplication(app);
                 }
             }
-
         }
 
         public async Task GetMessagesForApplication(int appId)

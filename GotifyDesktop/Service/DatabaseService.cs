@@ -7,15 +7,18 @@ using System.Linq;
 using gotifySharp.Models;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using Serilog;
 
 namespace GotifyDesktop.Service
 {
     public class DatabaseService
     {
         DatabaseContext databaseContext;
+        ILogger _logger;
 
-        public DatabaseService(DatabaseContext databaseContext)
+        public DatabaseService(DatabaseContext databaseContext, ILogger logger)
         {
+            this._logger = logger;
             this.databaseContext = databaseContext;
             CheckDB();
         }
@@ -24,6 +27,7 @@ namespace GotifyDesktop.Service
         {
             if (!File.Exists("gotifyDesktop.db"))
             {
+                _logger.Information("DB does not exist Creating DB");
                 CreateDB();
             }
         }
@@ -31,10 +35,12 @@ namespace GotifyDesktop.Service
         private void CreateDB()
         {
             databaseContext.Database.EnsureCreated();
+            _logger.Debug("DB Created");
         }
 
         public void InsertServer(ServerInfo serverInfo)
         {
+            _logger.Information($"Inserting {serverInfo.Url}:{serverInfo.Port}/{serverInfo.Path}");
             databaseContext.Server.Add(serverInfo);
             databaseContext.SaveChanges();
         }
@@ -49,13 +55,16 @@ namespace GotifyDesktop.Service
 
         public List<ApplicationModel> GetApplications()
         {
+            _logger.Information($"Getting Applications");
             return databaseContext.Applications.ToList<ApplicationModel>();
         }
 
         public void InsertApplication(ApplicationModel application)
         {
+            _logger.Information($"Inserting {application.name}");
             databaseContext.Applications.Add(application);
             databaseContext.SaveChanges();
+            _logger.Debug("Saved Application");
         }
 
         public void DeleteApplication(ApplicationModel application)
@@ -79,8 +88,10 @@ namespace GotifyDesktop.Service
                 var isThere = databaseContext.Messages.Where(x => x.id == message.id).Any();
                 if (!isThere)
                 {
+                    _logger.Information($"Inserting {message.id}");
                     databaseContext.Messages.Add(message);
                     databaseContext.SaveChanges();
+                    _logger.Debug("Message Saved");
                 }
             }
             catch (Exception e)
@@ -91,11 +102,15 @@ namespace GotifyDesktop.Service
 
         public List<MessageModel> GetMessagesForApplication(int appId)
         {
-            return databaseContext.Messages.Where(x => x.appid == appId).ToList<MessageModel>();
+            _logger.Information($"Getting message for {appId}");
+            var messages = databaseContext.Messages.Where(x => x.appid == appId).ToList<MessageModel>();
+            _logger.Debug($"Returning {messages.Count} Messages");
+            return messages;
         }
 
         public List<MessageModel> GetNewMessagesForApplication(int appId, int highestId)
         {
+            _logger.Information($"Getting new messages for applications");
             return databaseContext.Messages.Where(x => x.appid == appId)
                 .Where(x => x.id > highestId)
                 .ToList<MessageModel>();

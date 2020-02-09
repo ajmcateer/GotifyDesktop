@@ -15,9 +15,7 @@
       <ColumnDefinition Width="3*"/>
     </Grid.ColumnDefinitions>
       <Menu Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" Background="#3f51b5">
-        <!--<MenuItem Header="File" Background="#3f51b5">
-          <MenuItem Header="Exit" Background="#3f51b5"></MenuItem>
-        </MenuItem>-->
+
       </Menu>
       <ListBox 
         Grid.Row="1"
