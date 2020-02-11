@@ -11,6 +11,7 @@ In no particular order.
 - [ ] Add support for Toast Notifications(Blocked Until: https://github.com/AvaloniaUI/Avalonia/pull/3389) 
 - [ ] Code Cleanup
 - [ ] Better App Notifications
+- [ ] Respect OS Convetions for file storage
 - [ ] Server Information
 - [ ] Send and Delete messages
 - [ ] Listen to Multiple Servers
@@ -23,9 +24,9 @@ Download the file and double click it.
 ### Linux
 Download the file navigate to the exe in a terminal and run the following commands
 
-chmod 777 ./GotifyDesktop-Linux
+chmod 775 ./GotifyDesktop-Linux
 
 ./GotifyDesktop-Linux
 
 ### Mac
-Should be the same as Linux I do not have a Mac to test on though. If I get more detailed instructions I will update.
+Should be the same as Linux I do not have a Mac to test on though.
