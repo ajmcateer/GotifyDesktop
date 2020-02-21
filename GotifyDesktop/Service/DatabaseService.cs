@@ -73,6 +73,12 @@ namespace GotifyDesktop.Service
             databaseContext.SaveChanges();
         }
 
+        public void DeleteMessage(MessageModel message)
+        {
+            databaseContext.Messages.Remove(message);
+            databaseContext.SaveChanges();
+        }
+
         public void InsertMessages(List<MessageModel> messages)
         {
             foreach (MessageModel message in messages)

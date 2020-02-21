@@ -133,10 +133,20 @@ namespace GotifyDesktop.Service
                         }
                     }
                 }
+                await RemoveMessages(gotifyMessages, dbMessages);
             }
             catch (SyncFailureException excep)
             {
                 _logger.Error(excep, "Message Sync Failed");
+            }
+        }
+
+        private async Task RemoveMessages(List<MessageModel> gotifyMessages, List<MessageModel> dbMessages)
+        {
+            var itemsToRemove = dbMessages.Except(gotifyMessages).ToList();
+            foreach(var item in itemsToRemove)
+            {
+                databaseService.DeleteMessage(item);
             }
         }
     }
