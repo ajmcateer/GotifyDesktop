@@ -115,5 +115,10 @@ namespace GotifyDesktop.Service
                 .Where(x => x.id > highestId)
                 .ToList<MessageModel>();
         }
+
+        public List<ServerInfo> GetServers()
+        {
+            return databaseContext.Server.ToList<ServerInfo>();
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using gotifySharp.Models;
 using Serilog;
+using GotifyDesktop.Exceptions;
 
 namespace GotifyDesktop.Service
 {
@@ -68,20 +69,27 @@ namespace GotifyDesktop.Service
 
         private async Task GetApplications()
         {
-            List<ApplicationModel> updatedApps = await gotifyService.GetApplications();
-            await RemoveApps(updatedApps);
-
-            foreach (var app in updatedApps)
+            try
             {
-                _logger.Debug($"Checking for {app.name}");
-                if (!applications.Any(x => x.id == app.id))
-                {
-                    _logger.Information($"{app.name} not found adding to list");
-                    databaseService.InsertApplication(app);
-                }
-            }
+                List<ApplicationModel> updatedApps = await gotifyService.GetApplications();
+                await RemoveApps(updatedApps);
 
-            applications = updatedApps;
+                foreach (var app in updatedApps)
+                {
+                    _logger.Debug($"Checking for {app.name}");
+                    if (!applications.Any(x => x.id == app.id))
+                    {
+                        _logger.Information($"{app.name} not found adding to list");
+                        databaseService.InsertApplication(app);
+                    }
+                }
+
+                applications = updatedApps;
+            }
+            catch (SyncFailureException excp)
+            {
+                _logger.Error(excp, "Application Sync Failed");
+            }
         }
 
         private async Task RemoveApps(List<ApplicationModel> updatedApps)
@@ -99,29 +107,36 @@ namespace GotifyDesktop.Service
 
         public async Task GetMessagesForApplication(int appId)
         {
-            var dbMessages = databaseService.GetMessagesForApplication(appId);
-            var highestDbId = dbMessages.OrderByDescending(u => u.id)
-                .Select(o => o.id)
-                .FirstOrDefault();
-
-            var gotifyMessages = await gotifyService.GetMessagesForApplication(appId);
-            var highestGotifyId = gotifyMessages.OrderByDescending(u => u.id)
-                .Select(o => o.id)
-                .FirstOrDefault();
-
-            if (highestDbId < highestGotifyId)
+            try
             {
-                foreach (var message in gotifyMessages)
+                var dbMessages = databaseService.GetMessagesForApplication(appId);
+                var highestDbId = dbMessages.OrderByDescending(u => u.id)
+                    .Select(o => o.id)
+                    .FirstOrDefault();
+
+                var gotifyMessages = await gotifyService.GetMessagesForApplication(appId);
+                var highestGotifyId = gotifyMessages.OrderByDescending(u => u.id)
+                    .Select(o => o.id)
+                    .FirstOrDefault();
+
+                if (highestDbId < highestGotifyId)
                 {
-                    if (message.id > highestDbId)
+                    foreach (var message in gotifyMessages)
                     {
-                        databaseService.InsertMessage(message);
-                    }
-                    if (message.id == highestDbId)
-                    {
-                        break;
+                        if (message.id > highestDbId)
+                        {
+                            databaseService.InsertMessage(message);
+                        }
+                        if (message.id == highestDbId)
+                        {
+                            break;
+                        }
                     }
                 }
+            }
+            catch (SyncFailureException excep)
+            {
+                _logger.Error(excep, "Message Sync Failed");
             }
         }
     }

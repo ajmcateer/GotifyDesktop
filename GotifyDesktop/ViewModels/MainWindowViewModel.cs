@@ -63,10 +63,7 @@ namespace GotifyDesktop.ViewModels
             }
             else
             {
-                gotifyService.Configure(server.Url, server.Port, server.Username, server.Password, server.Path, server.Protocol);
-                await syncService.FullSyncAsync();
-                await MainControlv2.InitAsync();
-                gotifyService.InitWebsocket();
+                await MainControlv2.InitAsync();               
                 Content = MainControlv2;
             }
         }

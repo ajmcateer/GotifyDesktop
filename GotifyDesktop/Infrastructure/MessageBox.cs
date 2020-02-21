@@ -20,5 +20,10 @@ namespace GotifyDesktop.Infrastructure
             });
             await msBoxStandardWindow.Show();
         }
+
+        public static async Task DropDownMessage()
+        {
+
+        }
     }
 }

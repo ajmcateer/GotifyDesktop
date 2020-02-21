@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using GotifyDesktop.Exceptions;
 using GotifyDesktop.Models;
 using gotifySharp;
 using gotifySharp.Interfaces;
@@ -17,10 +18,10 @@ namespace GotifyDesktop.Service
         private GotifySharp gotifySharp;
         ILogger _logger;
         public event EventHandler<MessageModel> OnMessage;
+        public event EventHandler<ConnectionStatus> ConnectionState;
 
         public GotifyService(ILogger logger)
         {
-            //this.gotifySharp = gotifySharp;
             this._logger = logger;
         }
 
@@ -58,6 +59,25 @@ namespace GotifyDesktop.Service
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
             gotifySharp = new GotifySharp(config);
             gotifySharp.OnMessage += GotifySharp_OnMessage;
+            gotifySharp.OnError += GotifySharp_OnError;
+            gotifySharp.OnClose += GotifySharp_OnClose;
+            gotifySharp.OnOpen += GotifySharp_OnOpen;
+        }
+
+        private void GotifySharp_OnOpen(object sender, EventArgs e)
+        {
+            //TODO Fix Race Condition
+            Connection(ConnectionStatus.Successful);
+        }
+
+        private void GotifySharp_OnClose(object sender, EventArgs e)
+        {
+            Connection(ConnectionStatus.Failed);
+        }
+
+        private void GotifySharp_OnError(object sender, EventArgs e)
+        {
+            Connection(ConnectionStatus.Failed);
         }
 
         private void GotifySharp_OnMessage(object sender, MessageModel e)
@@ -67,20 +87,23 @@ namespace GotifyDesktop.Service
 
         public async Task<List<ApplicationModel>> GetApplications()
         {
-            List<ApplicationModel> applications = new List<ApplicationModel>();
-            var response = await gotifySharp.GetApplications();
-            foreach(var appResponse in response.ApplicationResponse)
+            try
             {
-                ApplicationModel app = new ApplicationModel();
-                app.description = appResponse.description;
-                app.id = appResponse.id;
-                app.image = appResponse.image;
-                app.name = appResponse.name;
-                app.token = appResponse.token;
-                app._internal = appResponse._internal;
-                applications.Add(app);
+                List<ApplicationModel> applications = new List<ApplicationModel>();
+                var response = await gotifySharp.GetApplications();
+                foreach (var appResponse in response.ApplicationResponse)
+                {
+                    applications.Add(appResponse);
+                }
+                Connection(ConnectionStatus.Successful);
+                return applications;
             }
-            return applications;
+            catch (HttpRequestException httpExc)
+            {
+                _logger.Error(httpExc, "Unable to Get Applications");
+                Connection(ConnectionStatus.Failed);
+                throw new SyncFailureException();
+            }
         }
 
         public void InitWebsocket()
@@ -90,13 +113,40 @@ namespace GotifyDesktop.Service
 
         public async Task<List<MessageModel>> GetMessagesForApplication(int id)
         {
-            List<MessageModel> messages = new List<MessageModel>();
-            var messageGetResponse = await gotifySharp.GetMessageForApplicationAsync(id);
-            foreach(MessageModel response in messageGetResponse.MessageGetModel.messages)
+            try
             {
-                messages.Add(response);
+                List<MessageModel> messages = new List<MessageModel>();
+                var messageGetResponse = await gotifySharp.GetMessageForApplicationAsync(id);
+                foreach (MessageModel response in messageGetResponse.MessageGetModel.messages)
+                {
+                    messages.Add(response);
+                }
+                Connection(ConnectionStatus.Successful);
+                return messages;
             }
-            return messages;
+            catch (HttpRequestException httpExc)
+            {
+                _logger.Error(httpExc, "Unable to Get Messages");
+                Connection(ConnectionStatus.Failed);
+                throw new SyncFailureException();
+            }
+            catch (NullReferenceException nullExcp)
+            {
+                _logger.Error(nullExcp, "Unable to Get Messages");
+                Connection(ConnectionStatus.Failed);
+                throw new SyncFailureException();
+            }
         }
+
+        private void Connection(ConnectionStatus status)
+        {
+            ConnectionState?.Invoke(this, status);
+        }
+    }
+
+    public enum ConnectionStatus
+    {
+        Failed,
+        Successful
     }
 }
