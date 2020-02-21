@@ -13,11 +13,12 @@ namespace GotifyDesktop.ViewModels
         DispatcherTimer timer;
         bool isDisplayVisible;
         int retryCount;
+        string retryMessage;
 
-        public int RetryCount
+        public string RetryMessage
         {
-            get => retryCount;
-            set => this.RaiseAndSetIfChanged(ref retryCount, value);
+            get => retryMessage;
+            set => this.RaiseAndSetIfChanged(ref retryMessage, value);
         }
 
         public bool IsDisplayVisible
@@ -25,7 +26,7 @@ namespace GotifyDesktop.ViewModels
             get => isDisplayVisible;
             set
             {
-                if(value == true)
+                if(value == true && timer.IsEnabled == false)
                 {
                     timer.Start();
                 }
@@ -41,17 +42,18 @@ namespace GotifyDesktop.ViewModels
         {
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
-            RetryCount = 10;
+            retryCount = 10;
             timer.Tick += Timer_Tick;
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            RetryCount--;
-            if(RetryCount == 0)
+            retryCount--;
+            RetryMessage = $"Failed to Connect retrying in {retryCount}";
+            if(retryCount == 0)
             {
                 Retry?.Invoke(this, null);
-                RetryCount = 10;
+                retryCount = 10;
             }
         }
 

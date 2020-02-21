@@ -15,9 +15,9 @@
       <ColumnDefinition Width="1*"/>
       <ColumnDefinition Width="3*"/>
     </Grid.ColumnDefinitions>
-      <Menu Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" Background="#3f51b5">
-        
-      </Menu>
+    
+    <Menu Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" Background="#3f51b5"/>
+    
     <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
       <local:AlertMessageView 
         DataContext="{Binding AlertMessageViewModel}"
@@ -94,6 +94,7 @@
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
+      
     </DockPanel>
       
   </Grid>
