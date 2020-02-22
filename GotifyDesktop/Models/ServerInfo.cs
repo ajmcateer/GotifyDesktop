@@ -13,8 +13,9 @@ namespace GotifyDesktop.Models
         public string Password { get; set; }
         public string Protocol { get; set; }
         public string Path { get; set; }
+        public string ClientName { get; set; }
 
-        public ServerInfo(int ID, string Url, int Port, string Username, string Password, string Path, string Protocol)
+        public ServerInfo(int ID, string Url, int Port, string Username, string Password, string Path, string Protocol, string ClientName)
         {
             this.ID = ID;
             this.Url = Url;
@@ -23,6 +24,7 @@ namespace GotifyDesktop.Models
             this.Password = Password;
             this.Protocol = Protocol;
             this.Path = Path;
+            this.ClientName = ClientName;
         }
     }
 }

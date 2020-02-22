@@ -20,6 +20,7 @@ namespace GotifyDesktop.ViewModels
         public string Username { get; set; }
         public string Password { get; set; }
         public string Path { get; set; }
+        public string ClientName { get; set; }
         public string SelectedProtocol { get; set; }
 
         ObservableCollection<string> protocols;
@@ -40,7 +41,9 @@ namespace GotifyDesktop.ViewModels
         public AddServerViewModel(IContainer container)
         {
             this.container = container;
-
+            Path = "/";
+            string epoch = DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
+            ClientName = "GotifyDesktop-" + epoch.Substring(epoch.Length - 8);
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
             SelectedProtocol = "Http";
         }
@@ -58,7 +61,7 @@ namespace GotifyDesktop.ViewModels
             //gotifyService.Configure(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
 
             var databaseService = container.Resolve<DatabaseService>();
-            var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol);
+            var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName);
             databaseService.InsertServer(serverInfo);
 
             saveServerEvent?.Invoke();
