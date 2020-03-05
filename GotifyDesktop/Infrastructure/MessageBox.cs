@@ -21,9 +21,16 @@ namespace GotifyDesktop.Infrastructure
             await msBoxStandardWindow.Show();
         }
 
-        public static async Task DropDownMessage()
+        public static async Task<ButtonResult> ShowDialogAsync(ButtonEnum buttonEnum, string title, string message, Icon icon)
         {
-
+            var msBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(new MessageBoxStandardParams
+            {
+                ButtonDefinitions = buttonEnum,
+                ContentTitle = title,
+                ContentMessage = message,
+                Icon = icon
+            });
+            return await msBoxStandardWindow.Show();
         }
     }
 }

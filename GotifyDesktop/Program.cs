@@ -23,6 +23,8 @@ namespace GotifyDesktop
     {
         public static LoggingLevelSwitch loggingLevelSwitch;
 
+        public static MainWindow window;
+
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
@@ -50,16 +52,17 @@ namespace GotifyDesktop
                 .CreateLogger();
 
             // Register individual components
-            builder.RegisterType<DatabaseContext>();
+            builder.RegisterType<DatabaseContextFactory>();
+            builder.RegisterType<GotifyServiceFactory>();
             builder.RegisterLogger();
             builder.RegisterType<GotifySharp>();
-            builder.RegisterType<GotifyService>().SingleInstance();
+            builder.RegisterType<GotifyService>();
             builder.RegisterType<GotifyService>().Named<GotifyService>("TestService");
             builder.RegisterType<DatabaseService>();
             builder.RegisterType<SyncService>().SingleInstance();
             var container = builder.Build();
 
-            var window = new MainWindow
+            window = new MainWindow
             {
                 DataContext = new MainWindowViewModel(container),
             };

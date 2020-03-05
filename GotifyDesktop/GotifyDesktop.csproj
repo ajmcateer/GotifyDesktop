@@ -17,16 +17,14 @@
     <AvaloniaResource Remove="Views\AddServerView.xaml" />
     <AvaloniaResource Remove="Views\AlertMessageView.xaml" />
     <AvaloniaResource Remove="Views\ApplicationView.xaml" />
-    <AvaloniaResource Remove="Views\MainControlv2View.xaml" />
-    <AvaloniaResource Remove="Views\MainControlView.xaml" />
+    <AvaloniaResource Remove="Views\BusyView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="README.md" />
     <None Remove="Views\AddServerView.xaml" />
     <None Remove="Views\AlertMessageView.xaml" />
     <None Remove="Views\ApplicationView.xaml" />
-    <None Remove="Views\MainControlv2View.xaml" />
-    <None Remove="Views\MainControlView.xaml" />
+    <None Remove="Views\BusyView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
@@ -44,22 +42,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\MainControlView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Views\AddServerView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Views\ApplicationView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Views\MainControlv2View.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
@@ -69,8 +52,23 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\AddServerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\BusyView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="gotifySharp">
       <HintPath>..\..\gotifySharp\gotifySharp\bin\Release\netcoreapp3.0\gotifySharp.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\AddServerView.xaml.cs">
+      <DependentUpon>AddServerView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿using GotifyDesktop.Infrastructure;
+﻿//using GotifyDesktop.Infrastructure;
 using GotifyDesktop.Models;
 using System;
 using System.Collections.Generic;
@@ -8,18 +8,20 @@ using gotifySharp.Models;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Serilog;
+using Microsoft.EntityFrameworkCore.Internal;
+using GotifyDesktop.Infrastructure;
 
 namespace GotifyDesktop.Service
 {
     public class DatabaseService
     {
-        DatabaseContext databaseContext;
+        DatabaseContextFactory databaseContextFactory;
         ILogger _logger;
 
-        public DatabaseService(DatabaseContext databaseContext, ILogger logger)
+        public DatabaseService(DatabaseContextFactory databaseContextFactory, ILogger logger)
         {
             this._logger = logger;
-            this.databaseContext = databaseContext;
+            this.databaseContextFactory = databaseContextFactory;
             CheckDB();
         }
 
@@ -32,17 +34,40 @@ namespace GotifyDesktop.Service
             }
         }
 
+        public void ResetDB()
+        {
+            DeleteDB();
+            CreateDB();
+        }
+
+        private void DeleteDB()
+        {
+            using (var databaseContext = new DatabaseContext())
+            {
+                databaseContext.Database.EnsureDeleted();
+                databaseContext.SaveChanges();
+            }
+            _logger.Information("DB Deleted");
+        }
+
         private void CreateDB()
         {
-            databaseContext.Database.EnsureCreated();
-            _logger.Debug("DB Created");
+            using (var databaseContext = new DatabaseContext())
+            {
+                databaseContext.Database.EnsureCreated();
+                databaseContext.SaveChanges();
+            }
+            _logger.Information("DB Created");
         }
 
         public void InsertServer(ServerInfo serverInfo)
         {
             _logger.Information($"Inserting {serverInfo.Url}:{serverInfo.Port}/{serverInfo.Path}");
-            databaseContext.Server.Add(serverInfo);
-            databaseContext.SaveChanges();
+            using (var databaseContext = new DatabaseContext())
+            {
+                databaseContext.Server.Add(serverInfo);
+                databaseContext.SaveChanges();
+            }
         }
 
         public void InsertApplications(List<ApplicationModel> applications)
@@ -56,27 +81,39 @@ namespace GotifyDesktop.Service
         public List<ApplicationModel> GetApplications()
         {
             _logger.Information($"Getting Applications");
-            return databaseContext.Applications.ToList<ApplicationModel>();
+            using (var databaseContext = new DatabaseContext())
+            {
+                return databaseContext.Applications.ToList<ApplicationModel>();
+            }
         }
 
         public void InsertApplication(ApplicationModel application)
         {
             _logger.Information($"Inserting {application.name}");
-            databaseContext.Applications.Add(application);
-            databaseContext.SaveChanges();
+            using(var databaseContext = new DatabaseContext())
+            {
+                databaseContext.Applications.Add(application);
+                databaseContext.SaveChanges();
+            }
             _logger.Debug("Saved Application");
         }
 
         public void DeleteApplication(ApplicationModel application)
         {
-            databaseContext.Applications.Remove(application);
-            databaseContext.SaveChanges();
+            using (var databaseContext = new DatabaseContext())
+            {
+                databaseContext.Applications.Remove(application);
+                databaseContext.SaveChanges();
+            }
         }
 
         public void DeleteMessage(MessageModel message)
         {
-            databaseContext.Messages.Remove(message);
-            databaseContext.SaveChanges();
+            using (var databaseContext = new DatabaseContext())
+            {
+                databaseContext.Messages.Remove(message);
+                databaseContext.SaveChanges();
+            }
         }
 
         public void InsertMessages(List<MessageModel> messages)
@@ -91,13 +128,16 @@ namespace GotifyDesktop.Service
         {
             try
             {
-                var isThere = databaseContext.Messages.Where(x => x.id == message.id).Any();
-                if (!isThere)
+                using (var databaseContext = new DatabaseContext())
                 {
-                    _logger.Information($"Inserting {message.id}");
-                    databaseContext.Messages.Add(message);
-                    databaseContext.SaveChanges();
-                    _logger.Debug("Message Saved");
+                    var isThere = databaseContext.Messages.Where(x => x.id == message.id).Any();
+                    if (!isThere)
+                    {
+                        _logger.Information($"Inserting {message.id}");
+                        databaseContext.Messages.Add(message);
+                        databaseContext.SaveChanges();
+                        _logger.Debug("Message Saved");
+                    }
                 }
             }
             catch (Exception e)
@@ -109,22 +149,39 @@ namespace GotifyDesktop.Service
         public List<MessageModel> GetMessagesForApplication(int appId)
         {
             _logger.Information($"Getting message for {appId}");
-            var messages = databaseContext.Messages.Where(x => x.appid == appId).ToList<MessageModel>();
-            _logger.Debug($"Returning {messages.Count} Messages");
-            return messages;
+            using (var databaseContext = new DatabaseContext())
+            {
+                var messages = databaseContext.Messages.Where(x => x.appid == appId).ToList<MessageModel>();
+                _logger.Debug($"Returning {messages.Count} Messages");
+                return messages;
+            }
         }
 
         public List<MessageModel> GetNewMessagesForApplication(int appId, int highestId)
         {
             _logger.Information($"Getting new messages for applications");
-            return databaseContext.Messages.Where(x => x.appid == appId)
+            using (var databaseContext = new DatabaseContext())
+            {
+                return databaseContext.Messages.Where(x => x.appid == appId)
                 .Where(x => x.id > highestId)
                 .ToList<MessageModel>();
+            }
         }
 
         public List<ServerInfo> GetServers()
         {
-            return databaseContext.Server.ToList<ServerInfo>();
+            using (var databaseContext = new DatabaseContext())
+            {
+                return databaseContext.Server.ToList<ServerInfo>();
+            }
+        }
+
+        public ServerInfo GetServer()
+        {
+            using (var databaseContext = new DatabaseContext())
+            {
+                return databaseContext.Server.FirstOrDefault();
+            }
         }
     }
 }

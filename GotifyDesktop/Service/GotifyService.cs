@@ -25,7 +25,7 @@ namespace GotifyDesktop.Service
             this._logger = logger;
         }
 
-        public async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, String Protocol)
+        public async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
         {
             _logger.Information("Starting Connection Test");
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
