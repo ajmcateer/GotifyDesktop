@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace GotifyDesktop.Views
 {
-    public class MainControlv2View : UserControl
+    public class BusyView : UserControl
     {
-        public MainControlv2View()
+        public BusyView()
         {
             this.InitializeComponent();
         }

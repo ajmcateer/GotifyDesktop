@@ -7,6 +7,8 @@ using System.Linq;
 using gotifySharp.Models;
 using Serilog;
 using GotifyDesktop.Exceptions;
+using GotifyDesktop.Comparer;
+using GotifyDesktop.Infrastructure;
 
 namespace GotifyDesktop.Service
 {
@@ -14,23 +16,30 @@ namespace GotifyDesktop.Service
     {
         DatabaseService databaseService;
         GotifyService gotifyService;
+        GotifyServiceFactory gotifyServiceFactory;
         ILogger _logger;
         //returns the appid that the message came in on.
         public event EventHandler<int> OnMessageRecieved;
-        List<ApplicationModel> applications;
+        public event EventHandler<ConnectionStatus> ConnectionState;
 
-        public SyncService(DatabaseService databaseService, GotifyService gotifyService, ILogger logger)
+        public SyncService(DatabaseService databaseService, GotifyServiceFactory gotifyServiceFactory, ILogger logger)
         {
             this.databaseService = databaseService;
-            this.gotifyService = gotifyService;
+            this.gotifyService = gotifyServiceFactory.CreateNewGotifyService();
+            this.gotifyServiceFactory = gotifyServiceFactory;
             this._logger = logger;
             gotifyService.OnMessage += GotifyService_OnMessage;
-            applications = databaseService.GetApplications();
+            gotifyService.ConnectionState += GotifyService_ConnectionState;
         }
 
-        public async Task Init()
+        private void GotifyService_ConnectionState(object sender, ConnectionStatus e)
         {
-            applications = databaseService.GetApplications();
+            ConnectionState?.Invoke(this, e);
+        }
+
+        public void InitWebsocket()
+        {
+            gotifyService.InitWebsocket();
         }
 
         private void GotifyService_OnMessage(object sender, MessageModel e)
@@ -48,7 +57,7 @@ namespace GotifyDesktop.Service
 
         public async Task FullSyncAsync()
         {
-            await GetApplications();
+            var applications = await GetApplications();
 
             foreach (ApplicationModel app in applications)
             {
@@ -57,51 +66,42 @@ namespace GotifyDesktop.Service
             }
         }
 
-        public async Task IncrementalSyncAsync()
+        //public async Task IncrementalSyncAsync()
+        //{
+        //    var applications = await GetApplications();
+
+        //    foreach (ApplicationModel app in applications)
+        //    {
+        //        await GetMessagesForApplication(app.id);
+        //    }
+        //}
+
+        private async Task<List<ApplicationModel>> GetApplications()
         {
-            await GetApplications();
+            List<ApplicationModel> gotifyApplications = await gotifyService.GetApplications();
+            List<ApplicationModel> dbApplications = databaseService.GetApplications();
 
-            foreach (ApplicationModel app in applications)
-            {
-                await GetMessagesForApplication(app.id);
-            }
-        }
+            await RemoveApps(gotifyApplications, dbApplications);
 
-        private async Task GetApplications()
-        {
-            try
-            {
-                List<ApplicationModel> updatedApps = await gotifyService.GetApplications();
-                await RemoveApps(updatedApps);
-
-                foreach (var app in updatedApps)
-                {
-                    _logger.Debug($"Checking for {app.name}");
-                    if (!applications.Any(x => x.id == app.id))
-                    {
-                        _logger.Information($"{app.name} not found adding to list");
-                        databaseService.InsertApplication(app);
-                    }
-                }
-
-                applications = updatedApps;
-            }
-            catch (SyncFailureException excp)
-            {
-                _logger.Error(excp, "Application Sync Failed");
-            }
-        }
-
-        private async Task RemoveApps(List<ApplicationModel> updatedApps)
-        {
-            foreach(var app in applications)
+            foreach (var app in gotifyApplications)
             {
                 _logger.Debug($"Checking for {app.name}");
-                if (!updatedApps.Any(x => x.id == app.id))
+                if (!dbApplications.Any(x => x.id == app.id))
                 {
-                    _logger.Information($"{app.name} found deleting from list");
-                    databaseService.DeleteApplication(app);
+                    _logger.Information($"{app.name} not found adding to list");
+                    databaseService.InsertApplication(app);
                 }
+            }
+
+            return gotifyApplications;
+        }
+
+        private async Task RemoveApps(List<ApplicationModel> gotifyApplications, List<ApplicationModel> dbApplications)
+        {
+            var itemsToRemove = dbApplications.Except(gotifyApplications, new ApplicationComparer()).ToList();
+            foreach (var item in itemsToRemove)
+            {
+                databaseService.DeleteApplication(item);
             }
         }
 
@@ -143,11 +143,19 @@ namespace GotifyDesktop.Service
 
         private async Task RemoveMessages(List<MessageModel> gotifyMessages, List<MessageModel> dbMessages)
         {
-            var itemsToRemove = dbMessages.Except(gotifyMessages).ToList();
+            var itemsToRemove = dbMessages.Except(gotifyMessages, new MessageComparer()).ToList();
             foreach(var item in itemsToRemove)
             {
                 databaseService.DeleteMessage(item);
             }
+        }
+
+        public async Task Configure(string url, int port, string username, string password, string path, string protocol)
+        {
+            _logger.Information(gotifyService.GetHashCode().ToString());
+            gotifyService = gotifyServiceFactory.CreateNewGotifyService();
+            _logger.Information(gotifyService.GetHashCode().ToString());
+            gotifyService.Configure(url, port, username, password, path, protocol);
         }
     }
 }

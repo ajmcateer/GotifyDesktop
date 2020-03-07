@@ -19,6 +19,9 @@ namespace GotifyDesktop.Infrastructure
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite("Data Source=gotifyDesktop.db");
+        {
+            options.UseSqlite("Data Source=gotifyDesktop.db");
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        }
     }
 }
