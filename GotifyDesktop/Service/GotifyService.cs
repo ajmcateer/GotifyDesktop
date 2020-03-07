@@ -50,7 +50,7 @@ namespace GotifyDesktop.Service
             catch (HttpRequestException HttpExcep)
             {
                 _logger.Error(HttpExcep, "Test Failed");
-                return false;
+                throw HttpExcep;
             }
         }
 

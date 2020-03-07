@@ -138,9 +138,8 @@
                    Text="{Binding Username}"
                    ToolTip.Tip="Username"/>
           <TextBox Margin="5"
-                   PasswordChar="0"
+                   PasswordChar="*"
                    Grid.Column="1"
-                   
                    Grid.Row="6"
                    Watermark="Password"
                    Text="{Binding Password}"

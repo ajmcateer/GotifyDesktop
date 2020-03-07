@@ -90,7 +90,7 @@
               FontSize="24"
               Margin="10,0,0,0"
               VerticalAlignment="Center"/>
-      <TextBlock Text="2.0.8"
+      <TextBlock Text=""
               Foreground="White"
               FontWeight="Regular"
               DockPanel.Dock="Left"
