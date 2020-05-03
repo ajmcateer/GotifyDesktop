@@ -12,96 +12,124 @@ using GotifyDesktop.Infrastructure;
 
 namespace GotifyDesktop.Service
 {
-    public class SyncService
+    public class SyncService : ISyncService
     {
-        DatabaseService databaseService;
-        GotifyService gotifyService;
-        GotifyServiceFactory gotifyServiceFactory;
+        private bool _lostConnection = false;
+        IDatabaseService _databaseService;
+        IGotifyService _gotifyService;
+        IGotifyServiceFactory _gotifyServiceFactory;
         ILogger _logger;
         //returns the appid that the message came in on.
         public event EventHandler<int> OnMessageRecieved;
         public event EventHandler<ConnectionStatus> ConnectionState;
 
-        public SyncService(DatabaseService databaseService, GotifyServiceFactory gotifyServiceFactory, ILogger logger)
+        public SyncService(IDatabaseService databaseService, IGotifyServiceFactory gotifyServiceFactory, ILogger logger)
         {
-            this.databaseService = databaseService;
-            this.gotifyService = gotifyServiceFactory.CreateNewGotifyService();
-            this.gotifyServiceFactory = gotifyServiceFactory;
-            this._logger = logger;
-            gotifyService.OnMessage += GotifyService_OnMessage;
-            gotifyService.ConnectionState += GotifyService_ConnectionState;
+            _databaseService = databaseService;
+            _gotifyServiceFactory = gotifyServiceFactory;
+            _gotifyService = gotifyServiceFactory.CreateNewGotifyService(logger);
+            _logger = logger;
+            _gotifyService.OnMessage += GotifyService_OnMessage;
+            _gotifyService.ConnectionState += GotifyService_ConnectionState;
         }
 
         private void GotifyService_ConnectionState(object sender, ConnectionStatus e)
         {
+            if(e == ConnectionStatus.Failed && !_lostConnection)
+            {
+                _lostConnection = true;
+            }
             ConnectionState?.Invoke(this, e);
         }
 
         public void InitWebsocket()
         {
-            gotifyService.InitWebsocket();
+            _gotifyService.InitWebsocket();
         }
 
         private void GotifyService_OnMessage(object sender, MessageModel e)
         {
             _logger.Information("Message Received");
-            databaseService.InsertMessage(e);
+            _databaseService.InsertMessage(e);
             OnMessageRecieved?.Invoke(this, e.appid);
         }
 
         public void Update(int appId)
         {
-            var db = databaseService.GetMessagesForApplication(appId);
-            var messages = gotifyService.GetMessagesForApplication(appId);
+            var db = _databaseService.GetMessagesForApplication(appId);
+            var messages = _gotifyService.GetMessagesForApplication(appId);
         }
 
         public async Task FullSyncAsync()
         {
-            var applications = await GetApplications();
+            var applications = await RefreshApplications();
 
             foreach (ApplicationModel app in applications)
             {
-                var messages = await gotifyService.GetMessagesForApplication(app.id);
-                databaseService.InsertMessages(messages);
+                var messages = await _gotifyService.GetMessagesForApplication(app.id);
+                _databaseService.InsertMessages(messages);
             }
         }
 
-        //public async Task IncrementalSyncAsync()
-        //{
-        //    var applications = await GetApplications();
-
-        //    foreach (ApplicationModel app in applications)
-        //    {
-        //        await GetMessagesForApplication(app.id);
-        //    }
-        //}
-
-        private async Task<List<ApplicationModel>> GetApplications()
+        public async Task IncrementalSyncAsync()
         {
-            List<ApplicationModel> gotifyApplications = await gotifyService.GetApplications();
-            List<ApplicationModel> dbApplications = databaseService.GetApplications();
+            var applications = await RefreshApplications();
 
-            await RemoveApps(gotifyApplications, dbApplications);
+            foreach (ApplicationModel app in applications)
+            {
+                await GetMessagesForApplication(app.id);
+            }
+        }
 
+        public async Task<List<ApplicationModel>> GetApplicationsAsync()
+        {
+            if (_lostConnection)
+            {
+                await IncrementalSyncAsync();
+            }
+            return _databaseService.GetApplications();
+        }
+
+        public async Task<List<MessageModel>> GetMessagesPerAppAsync(int appId)
+        {
+            if (_lostConnection)
+            {
+                await IncrementalSyncAsync();
+            }
+            return _databaseService.GetMessagesForApplication(appId);
+        }
+
+        private async Task<List<ApplicationModel>> RefreshApplications()
+        {
+            List<ApplicationModel> gotifyApplications = await _gotifyService.GetApplications();
+            List<ApplicationModel> dbApplications = _databaseService.GetApplications();
+
+            RemoveApplicationsFromDb(gotifyApplications, dbApplications);
+
+            return GetNewApplications(gotifyApplications, dbApplications);
+        }
+
+        private List<ApplicationModel> GetNewApplications(List<ApplicationModel> gotifyApplications, List<ApplicationModel> dbApplications)
+        {
             foreach (var app in gotifyApplications)
             {
                 _logger.Debug($"Checking for {app.name}");
                 if (!dbApplications.Any(x => x.id == app.id))
                 {
                     _logger.Information($"{app.name} not found adding to list");
-                    databaseService.InsertApplication(app);
+                    _databaseService.InsertApplication(app);
                 }
             }
 
             return gotifyApplications;
         }
 
-        private async Task RemoveApps(List<ApplicationModel> gotifyApplications, List<ApplicationModel> dbApplications)
+        private void RemoveApplicationsFromDb(List<ApplicationModel> gotifyApplications, List<ApplicationModel> dbApplications)
         {
             var itemsToRemove = dbApplications.Except(gotifyApplications, new ApplicationComparer()).ToList();
             foreach (var item in itemsToRemove)
             {
-                databaseService.DeleteApplication(item);
+                _databaseService.DeleteApplication(item);
             }
         }
 
@@ -109,12 +137,12 @@ namespace GotifyDesktop.Service
         {
             try
             {
-                var dbMessages = databaseService.GetMessagesForApplication(appId);
+                var dbMessages = _databaseService.GetMessagesForApplication(appId);
                 var highestDbId = dbMessages.OrderByDescending(u => u.id)
                     .Select(o => o.id)
                     .FirstOrDefault();
 
-                var gotifyMessages = await gotifyService.GetMessagesForApplication(appId);
+                var gotifyMessages = await _gotifyService.GetMessagesForApplication(appId);
                 var highestGotifyId = gotifyMessages.OrderByDescending(u => u.id)
                     .Select(o => o.id)
                     .FirstOrDefault();
@@ -125,7 +153,7 @@ namespace GotifyDesktop.Service
                     {
                         if (message.id > highestDbId)
                         {
-                            databaseService.InsertMessage(message);
+                            _databaseService.InsertMessage(message);
                         }
                         if (message.id == highestDbId)
                         {
@@ -144,18 +172,18 @@ namespace GotifyDesktop.Service
         private async Task RemoveMessages(List<MessageModel> gotifyMessages, List<MessageModel> dbMessages)
         {
             var itemsToRemove = dbMessages.Except(gotifyMessages, new MessageComparer()).ToList();
-            foreach(var item in itemsToRemove)
+            foreach (var item in itemsToRemove)
             {
-                databaseService.DeleteMessage(item);
+                _databaseService.DeleteMessage(item);
             }
         }
 
         public async Task Configure(string url, int port, string username, string password, string path, string protocol)
         {
-            _logger.Information(gotifyService.GetHashCode().ToString());
-            gotifyService = gotifyServiceFactory.CreateNewGotifyService();
-            _logger.Information(gotifyService.GetHashCode().ToString());
-            gotifyService.Configure(url, port, username, password, path, protocol);
+            _logger.Information(_gotifyService.GetHashCode().ToString());
+            _gotifyService = _gotifyServiceFactory.CreateNewGotifyService(_logger);
+            _logger.Information(_gotifyService.GetHashCode().ToString());
+            _gotifyService.Configure(url, port, username, password, path, protocol);
         }
     }
 }

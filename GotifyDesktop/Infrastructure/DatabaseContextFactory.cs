@@ -7,9 +7,16 @@ namespace GotifyDesktop.Infrastructure
 {
     public class DatabaseContextFactory
     {
+        DbContextOptionsBuilder<DbContext> options;
+
+        public DatabaseContextFactory(DbContextOptionsBuilder<DbContext> options)
+        {
+            this.options = options;
+        }
+
         public DatabaseContext CreateContext()
         {
-            DatabaseContext context = new DatabaseContext();
+            DatabaseContext context = new DatabaseContext(options);
             return context;
         }
     }

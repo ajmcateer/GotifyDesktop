@@ -13,7 +13,7 @@ using GotifyDesktop.Infrastructure;
 
 namespace GotifyDesktop.Service
 {
-    public class DatabaseService
+    public class DatabaseService : IDatabaseService
     {
         DatabaseContextFactory databaseContextFactory;
         ILogger _logger;
@@ -42,7 +42,7 @@ namespace GotifyDesktop.Service
 
         private void DeleteDB()
         {
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 databaseContext.Database.EnsureDeleted();
                 databaseContext.SaveChanges();
@@ -52,7 +52,7 @@ namespace GotifyDesktop.Service
 
         private void CreateDB()
         {
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 databaseContext.Database.EnsureCreated();
                 databaseContext.SaveChanges();
@@ -63,7 +63,7 @@ namespace GotifyDesktop.Service
         public void InsertServer(ServerInfo serverInfo)
         {
             _logger.Information($"Inserting {serverInfo.Url}:{serverInfo.Port}/{serverInfo.Path}");
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 databaseContext.Server.Add(serverInfo);
                 databaseContext.SaveChanges();
@@ -72,16 +72,21 @@ namespace GotifyDesktop.Service
 
         public void InsertApplications(List<ApplicationModel> applications)
         {
-            foreach(ApplicationModel app in applications)
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
-                InsertApplication(app);
+                foreach (ApplicationModel app in applications)
+                {
+                    databaseContext.Applications.Add(app);
+                    databaseContext.SaveChanges();
+                    var res = databaseContext.Applications.ToList();
+                }
             }
         }
 
         public List<ApplicationModel> GetApplications()
         {
             _logger.Information($"Getting Applications");
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 return databaseContext.Applications.ToList<ApplicationModel>();
             }
@@ -90,7 +95,7 @@ namespace GotifyDesktop.Service
         public void InsertApplication(ApplicationModel application)
         {
             _logger.Information($"Inserting {application.name}");
-            using(var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 databaseContext.Applications.Add(application);
                 databaseContext.SaveChanges();
@@ -100,7 +105,7 @@ namespace GotifyDesktop.Service
 
         public void DeleteApplication(ApplicationModel application)
         {
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 databaseContext.Applications.Remove(application);
                 databaseContext.SaveChanges();
@@ -109,7 +114,7 @@ namespace GotifyDesktop.Service
 
         public void DeleteMessage(MessageModel message)
         {
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 databaseContext.Messages.Remove(message);
                 databaseContext.SaveChanges();
@@ -128,7 +133,7 @@ namespace GotifyDesktop.Service
         {
             try
             {
-                using (var databaseContext = new DatabaseContext())
+                using (var databaseContext = databaseContextFactory.CreateContext())
                 {
                     var isThere = databaseContext.Messages.Where(x => x.id == message.id).Any();
                     if (!isThere)
@@ -149,7 +154,7 @@ namespace GotifyDesktop.Service
         public List<MessageModel> GetMessagesForApplication(int appId)
         {
             _logger.Information($"Getting message for {appId}");
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 var messages = databaseContext.Messages.Where(x => x.appid == appId).ToList<MessageModel>();
                 _logger.Debug($"Returning {messages.Count} Messages");
@@ -160,7 +165,7 @@ namespace GotifyDesktop.Service
         public List<MessageModel> GetNewMessagesForApplication(int appId, int highestId)
         {
             _logger.Information($"Getting new messages for applications");
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 return databaseContext.Messages.Where(x => x.appid == appId)
                 .Where(x => x.id > highestId)
@@ -170,7 +175,7 @@ namespace GotifyDesktop.Service
 
         public List<ServerInfo> GetServers()
         {
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 return databaseContext.Server.ToList<ServerInfo>();
             }
@@ -178,7 +183,7 @@ namespace GotifyDesktop.Service
 
         public ServerInfo GetServer()
         {
-            using (var databaseContext = new DatabaseContext())
+            using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 return databaseContext.Server.FirstOrDefault();
             }

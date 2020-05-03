@@ -19,7 +19,7 @@ namespace GotifyDesktop.ViewModels
     {
         bool firstSync = true;
 
-        ILogger _logger;
+        ILogger logger;
         AddServerViewModel addServerViewModel;
         BusyViewModel busyViewModel;
 
@@ -29,10 +29,8 @@ namespace GotifyDesktop.ViewModels
         AlertMessageViewModel alertMessageViewModel;
         IContainer container;
 
-        DatabaseService databaseService;
-        SyncService syncService;
-
-        ServerInfo gotifyServer;
+        IDatabaseService databaseService;
+        ISyncService syncService;
 
         public AddServerViewModel AddServerViewModel
         {
@@ -64,7 +62,7 @@ namespace GotifyDesktop.ViewModels
             private set
             {
                 this.RaiseAndSetIfChanged(ref selectedApplication, value);
-                UpdateMessageDisplay();
+                UpdateMessageDisplayAsync();
             }
         }
 
@@ -79,24 +77,23 @@ namespace GotifyDesktop.ViewModels
 
         }
 
-        public MainWindowViewModel(IContainer container)
+        public MainWindowViewModel(AddServerViewModel addServerViewModel, BusyViewModel busyViewModel, AlertMessageViewModel alertMessageViewModel, 
+            IDatabaseService databaseService, ISyncService syncService, ILogger logger)
         {
-            this.container = container;
+            AddServerViewModel = addServerViewModel;
+            BusyViewModel = busyViewModel;
+            AlertMessageViewModel = alertMessageViewModel;
 
-            syncService = container.Resolve<SyncService>();
+            this.databaseService = databaseService;
+            this.syncService = syncService;
+            this.logger = logger;
 
-            this.container = container;
-            AddServerViewModel = new AddServerViewModel(container);
-            BusyViewModel = new BusyViewModel();
-            messageModels = new ObservableCollection<MessageModel>();
-            applications = new ObservableCollection<ApplicationModel>();
-            AlertMessageViewModel = new AlertMessageViewModel();
-
-            databaseService = container.Resolve<DatabaseService>();
-            syncService = container.Resolve<SyncService>();
             syncService.ConnectionState += SyncService_ConnectionState;
             syncService.OnMessageRecieved += SyncService_OnMessageRecieved;
             AlertMessageViewModel.Retry += AlertMessageViewModel_RetryAsync;
+
+            messageModels = new ObservableCollection<MessageModel>();
+            applications = new ObservableCollection<ApplicationModel>();
         }
 
         private void SyncService_ConnectionState(object sender, ConnectionStatus e)
@@ -127,7 +124,7 @@ namespace GotifyDesktop.ViewModels
             {
                 if (firstSync)
                 {
-                    await syncService.FullSyncAsync();
+                    await syncService.IncrementalSyncAsync();
                     firstSync = false;
                 }
                 syncService.InitWebsocket();
@@ -146,14 +143,14 @@ namespace GotifyDesktop.ViewModels
 
         private void SyncService_OnMessageRecieved(object sender, int e)
         {
-            UpdateMessageDisplay();
+            UpdateMessageDisplayAsync();
         }
 
-        private void UpdateMessageDisplay()
+        private async Task UpdateMessageDisplayAsync()
         {
             if(SelectedItem != null)
             {
-                var res = databaseService.GetMessagesForApplication(SelectedItem.id);
+                var res = await syncService.GetMessagesPerAppAsync(SelectedItem.id);
                 res.Reverse();
                 MessageModels = new ObservableCollection<MessageModel>(res);
             }
@@ -194,7 +191,7 @@ namespace GotifyDesktop.ViewModels
             { 
                 BusyViewModel.Show();
                 await DoSync();
-                return new ObservableCollection<ApplicationModel>(databaseService.GetApplications());
+                return new ObservableCollection<ApplicationModel>(await syncService.GetApplicationsAsync());
             }
             catch (Exception e)
             {

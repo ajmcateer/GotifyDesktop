@@ -13,15 +13,6 @@ namespace GotifyDesktop.Infrastructure
         public DbSet<MessageModel> Messages { get; set; }
         public DbSet<ServerInfo> Server { get; set; }
 
-        public DatabaseContext()
-        {
-
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.UseSqlite("Data Source=gotifyDesktop.db");
-            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-        }
+        public DatabaseContext(DbContextOptionsBuilder<DbContext> options) : base(options.Options) { }
     }
 }

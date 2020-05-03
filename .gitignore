@@ -2,3 +2,5 @@
 GotifyDesktop/bin/
 GotifyDesktop/obj/
 GotifyDesktop/GotifyDesktop.csproj.user
+GotifyDesktopUnitTests/bin
+GotifyDesktopUnitTests/obj

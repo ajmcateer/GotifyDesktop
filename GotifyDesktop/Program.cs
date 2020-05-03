@@ -12,6 +12,7 @@ using GotifyDesktop.Service;
 using GotifyDesktop.ViewModels;
 using GotifyDesktop.Views;
 using gotifySharp;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
@@ -51,20 +52,35 @@ namespace GotifyDesktop
                 .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
+
+
             // Register individual components
-            builder.RegisterType<DatabaseContextFactory>();
-            builder.RegisterType<GotifyServiceFactory>();
+
+            builder.Register(c =>
+            {
+                DbContextOptionsBuilder<DbContext> options = new DbContextOptionsBuilder<DbContext>();
+                options.UseSqlite("Data Source=gotifyDesktop.db");
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+                return options;
+            }).AsSelf();
+
+            //builder.RegisterInstance(options).As<DbContextOptionsBuilder<DbContext>>();
             builder.RegisterLogger();
+            builder.RegisterType<DatabaseContextFactory>();
+            builder.RegisterType<DatabaseService>().As<IDatabaseService>();
+            builder.RegisterType<GotifyServiceFactory>().As<IGotifyServiceFactory>();
             builder.RegisterType<GotifySharp>();
-            builder.RegisterType<GotifyService>();
-            builder.RegisterType<GotifyService>().Named<GotifyService>("TestService");
-            builder.RegisterType<DatabaseService>();
-            builder.RegisterType<SyncService>().SingleInstance();
+            builder.RegisterType<SyncService>().As<ISyncService>();
+            builder.RegisterType<AddServerViewModel>();
+            builder.RegisterType<BusyViewModel>();
+            builder.RegisterType<AlertMessageViewModel>();
+            builder.RegisterType<MainWindowViewModel>();
             var container = builder.Build();
 
             window = new MainWindow
             {
-                DataContext = new MainWindowViewModel(container),
+                DataContext = container.Resolve<MainWindowViewModel>()
             };
 
             app.Run(window);

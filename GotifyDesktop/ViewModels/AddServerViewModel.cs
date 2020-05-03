@@ -5,6 +5,7 @@ using GotifyDesktop.Service;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -94,16 +95,21 @@ namespace GotifyDesktop.ViewModels
         //declare event of type delegate
         public event SaveServer saveServerEvent;
 
-        IContainer container;
+        IGotifyServiceFactory gotifyServiceFactory;
+        IDatabaseService databaseService;
+        ILogger logger;
 
-        public AddServerViewModel(IContainer container)
+        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, IDatabaseService databaseService, ILogger logger)
         {
-            this.container = container;
+            this.gotifyServiceFactory = gotifyServiceFactory;
+            this.databaseService = databaseService;
+            this.logger = logger;
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
             ResetView();
         }
 
-        public AddServerViewModel(IContainer container, ServerInfo serverInfo) : this(container)
+        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, IDatabaseService databaseService, ILogger logger, ServerInfo serverInfo) 
+            : this(gotifyServiceFactory, databaseService, logger)
         {
             this.serverInfo = serverInfo;
             Username = serverInfo.Username;
@@ -146,11 +152,6 @@ namespace GotifyDesktop.ViewModels
 
         public void Save()
         {
-
-            var gotifyService = container.Resolve<GotifyService>();
-            //gotifyService.Configure(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
-
-            var databaseService = container.Resolve<DatabaseService>();
             var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName);
             databaseService.InsertServer(serverInfo);
 
@@ -165,7 +166,7 @@ namespace GotifyDesktop.ViewModels
 
         public async Task CheckConnection()
         {
-            GotifyService gotifyService = container.ResolveNamed<GotifyService>("TestService");
+            IGotifyService gotifyService = gotifyServiceFactory.CreateNewGotifyService(logger);
             try
             {
                 var isConnGood = await gotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);

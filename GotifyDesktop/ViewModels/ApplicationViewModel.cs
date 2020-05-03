@@ -16,10 +16,9 @@ namespace GotifyDesktop.ViewModels
     public class ApplicationViewModel : ViewModelBase
     {
         private ApplicationModel application;
-        IContainer container;
         ObservableCollection<MessageModel> messageModels;
-        SyncService syncService;
-        DatabaseService databaseService;
+        ISyncService syncService;
+        IDatabaseService databaseService;
 
         int HighestMessage = 0;
 
@@ -29,12 +28,11 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref messageModels, value);
         }
 
-        public ApplicationViewModel(ApplicationModel application, IContainer container)
+        public ApplicationViewModel(ApplicationModel application, ISyncService syncService, IDatabaseService databaseService)
         {
             MessageModels = new ObservableCollection<MessageModel>();
-            this.container = container;
-            this.syncService = container.Resolve<SyncService>();
-            databaseService = container.Resolve<DatabaseService>();
+            this.syncService = syncService;
+            this.databaseService = databaseService;
 
             this.application = application;
 
@@ -67,7 +65,6 @@ namespace GotifyDesktop.ViewModels
         private async Task GetMessagesFromDBAsync()
         {
             MessageModels.Clear();
-            var service = container.Resolve<SyncService>();
 
             try
             {
@@ -92,7 +89,6 @@ namespace GotifyDesktop.ViewModels
 
         private async Task GetNewMessagesFromDBAsync()
         {
-            var service = container.Resolve<SyncService>();
 
             try
             {

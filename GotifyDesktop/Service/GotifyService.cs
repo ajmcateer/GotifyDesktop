@@ -13,7 +13,7 @@ using Serilog;
 
 namespace GotifyDesktop.Service
 {
-    public class GotifyService
+    public class GotifyService : IGotifyService
     {
         private GotifySharp gotifySharp;
         ILogger _logger;

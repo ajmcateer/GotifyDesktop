@@ -6,18 +6,11 @@ using System.Text;
 
 namespace GotifyDesktop.Infrastructure
 {
-    public class GotifyServiceFactory
+    public class GotifyServiceFactory : IGotifyServiceFactory
     {
-        ILogger _ilogger;
-
-        public GotifyServiceFactory(ILogger ilogger)
+        public IGotifyService CreateNewGotifyService(ILogger ilogger)
         {
-            _ilogger = ilogger;
-        }
-
-        public GotifyService CreateNewGotifyService()
-        {
-            return new GotifyService(_ilogger);
+            return new GotifyService(ilogger);
         }
     }
 }
