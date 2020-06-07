@@ -170,7 +170,7 @@ namespace GotifyDesktop.ViewModels
 
         private async Task ConfigureGotify(ServerInfo server)
         {
-            await syncService.Configure(server.Url, server.Port, server.Username, server.Password, server.Path, server.Protocol);
+            syncService.Configure(server.Url, server.Port, server.Username, server.Password, server.Path, server.Protocol);
         }
 
         private async Task<ServerInfo> GetServerInfo()

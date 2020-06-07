@@ -12,55 +12,22 @@ using GotifyDesktop.Infrastructure;
 
 namespace GotifyDesktop.Service
 {
-    public class SyncService : ISyncService
+    public class SyncService : AbstractSyncService
     {
-        private bool _lostConnection = false;
         IDatabaseService _databaseService;
-        IGotifyService _gotifyService;
-        IGotifyServiceFactory _gotifyServiceFactory;
-        ILogger _logger;
-        //returns the appid that the message came in on.
-        public event EventHandler<int> OnMessageRecieved;
-        public event EventHandler<ConnectionStatus> ConnectionState;
 
-        public SyncService(IDatabaseService databaseService, IGotifyServiceFactory gotifyServiceFactory, ILogger logger)
+        public SyncService(IDatabaseService databaseService, IGotifyServiceFactory gotifyServiceFactory, ILogger logger) : base(gotifyServiceFactory, logger)
         {
             _databaseService = databaseService;
-            _gotifyServiceFactory = gotifyServiceFactory;
-            _gotifyService = gotifyServiceFactory.CreateNewGotifyService(logger);
-            _logger = logger;
-            _gotifyService.OnMessage += GotifyService_OnMessage;
-            _gotifyService.ConnectionState += GotifyService_ConnectionState;
         }
 
-        private void GotifyService_ConnectionState(object sender, ConnectionStatus e)
-        {
-            if(e == ConnectionStatus.Failed && !_lostConnection)
-            {
-                _lostConnection = true;
-            }
-            ConnectionState?.Invoke(this, e);
-        }
-
-        public void InitWebsocket()
-        {
-            _gotifyService.InitWebsocket();
-        }
-
-        private void GotifyService_OnMessage(object sender, MessageModel e)
-        {
-            _logger.Information("Message Received");
-            _databaseService.InsertMessage(e);
-            OnMessageRecieved?.Invoke(this, e.appid);
-        }
-
-        public void Update(int appId)
+        public override void Update(int appId)
         {
             var db = _databaseService.GetMessagesForApplication(appId);
             var messages = _gotifyService.GetMessagesForApplication(appId);
         }
 
-        public async Task FullSyncAsync()
+        public override async Task FullSyncAsync()
         {
             var applications = await RefreshApplications();
 
@@ -71,7 +38,7 @@ namespace GotifyDesktop.Service
             }
         }
 
-        public async Task IncrementalSyncAsync()
+        public override async Task IncrementalSyncAsync()
         {
             var applications = await RefreshApplications();
 
@@ -81,7 +48,7 @@ namespace GotifyDesktop.Service
             }
         }
 
-        public async Task<List<ApplicationModel>> GetApplicationsAsync()
+        public override async Task<List<ApplicationModel>> GetApplicationsAsync()
         {
             if (_lostConnection)
             {
@@ -90,7 +57,7 @@ namespace GotifyDesktop.Service
             return _databaseService.GetApplications();
         }
 
-        public async Task<List<MessageModel>> GetMessagesPerAppAsync(int appId)
+        public override async Task<List<MessageModel>> GetMessagesPerAppAsync(int appId)
         {
             if (_lostConnection)
             {
@@ -99,6 +66,11 @@ namespace GotifyDesktop.Service
             return _databaseService.GetMessagesForApplication(appId);
         }
 
+        /// <summary>
+        /// Gets all applications from the server
+        /// Removes deleted applications
+        /// </summary>
+        /// <returns>List of applications</returns>        
         private async Task<List<ApplicationModel>> RefreshApplications()
         {
             List<ApplicationModel> gotifyApplications = await _gotifyService.GetApplications();
@@ -133,7 +105,7 @@ namespace GotifyDesktop.Service
             }
         }
 
-        public async Task GetMessagesForApplication(int appId)
+        public override async Task GetMessagesForApplication(int appId)
         {
             try
             {
@@ -176,14 +148,6 @@ namespace GotifyDesktop.Service
             {
                 _databaseService.DeleteMessage(item);
             }
-        }
-
-        public async Task Configure(string url, int port, string username, string password, string path, string protocol)
-        {
-            _logger.Information(_gotifyService.GetHashCode().ToString());
-            _gotifyService = _gotifyServiceFactory.CreateNewGotifyService(_logger);
-            _logger.Information(_gotifyService.GetHashCode().ToString());
-            _gotifyService.Configure(url, port, username, password, path, protocol);
         }
     }
 }
