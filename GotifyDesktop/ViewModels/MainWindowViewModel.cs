@@ -17,26 +17,18 @@ namespace GotifyDesktop.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        bool firstSync = true;
-
         ILogger logger;
-        AddServerViewModel addServerViewModel;
+        
         BusyViewModel busyViewModel;
 
-        ObservableCollection<ApplicationModel> applications;
-        ApplicationModel selectedApplication;
+        ObservableCollection<ExtendedApplicationModel> applications;
+        ExtendedApplicationModel selectedApplication;
         ObservableCollection<MessageModel> messageModels;
         AlertMessageViewModel alertMessageViewModel;
-        IContainer container;
+        SettingsViewModel settingsViewModel;
 
         IDatabaseService databaseService;
         ISyncService syncService;
-
-        public AddServerViewModel AddServerViewModel
-        {
-            get => addServerViewModel;
-            set => this.RaiseAndSetIfChanged(ref addServerViewModel, value);
-        }
 
         public BusyViewModel BusyViewModel
         {
@@ -50,13 +42,19 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref alertMessageViewModel, value);
         }
 
+        public SettingsViewModel SettingsViewModel
+        {
+            get => settingsViewModel;
+            set => this.RaiseAndSetIfChanged(ref settingsViewModel, value);
+        }
+
         public ObservableCollection<MessageModel> MessageModels
         {
             get => messageModels;
             set => this.RaiseAndSetIfChanged(ref messageModels, value);
         }
 
-        public ApplicationModel SelectedItem
+        public ExtendedApplicationModel SelectedItem
         {
             get => selectedApplication;
             private set
@@ -66,7 +64,7 @@ namespace GotifyDesktop.ViewModels
             }
         }
 
-        public ObservableCollection<ApplicationModel> Applications
+        public ObservableCollection<ExtendedApplicationModel> Applications
         {
             get => applications;
             private set => this.RaiseAndSetIfChanged(ref applications, value);
@@ -77,12 +75,13 @@ namespace GotifyDesktop.ViewModels
 
         }
 
-        public MainWindowViewModel(AddServerViewModel addServerViewModel, BusyViewModel busyViewModel, AlertMessageViewModel alertMessageViewModel, 
+        public MainWindowViewModel(SettingsViewModel settingsViewModel, BusyViewModel busyViewModel, AlertMessageViewModel alertMessageViewModel, 
             IDatabaseService databaseService, ISyncService syncService, ILogger logger)
         {
-            AddServerViewModel = addServerViewModel;
+            
             BusyViewModel = busyViewModel;
             AlertMessageViewModel = alertMessageViewModel;
+            SettingsViewModel = settingsViewModel;
 
             this.databaseService = databaseService;
             this.syncService = syncService;
@@ -93,7 +92,7 @@ namespace GotifyDesktop.ViewModels
             AlertMessageViewModel.Retry += AlertMessageViewModel_RetryAsync;
 
             messageModels = new ObservableCollection<MessageModel>();
-            applications = new ObservableCollection<ApplicationModel>();
+            applications = new ObservableCollection<ExtendedApplicationModel>();
         }
 
         private void SyncService_ConnectionState(object sender, ConnectionStatus e)
@@ -122,11 +121,6 @@ namespace GotifyDesktop.ViewModels
         {
             try
             {
-                if (firstSync)
-                {
-                    await syncService.IncrementalSyncAsync();
-                    firstSync = false;
-                }
                 syncService.InitWebsocket();
             }
             catch (SyncFailureException excp)
@@ -179,23 +173,23 @@ namespace GotifyDesktop.ViewModels
 
             if (server == null)
             {
-                return await AddServerViewModel.ShowAsync();
+                
             }
 
             return server;
         }
 
-        private async Task<ObservableCollection<ApplicationModel>> GetApplicationsAsync()
+        private async Task<ObservableCollection<ExtendedApplicationModel>> GetApplicationsAsync()
         {
             try 
             { 
                 BusyViewModel.Show();
                 await DoSync();
-                return new ObservableCollection<ApplicationModel>(await syncService.GetApplicationsAsync());
+                return new ObservableCollection<ExtendedApplicationModel>(await syncService.GetApplicationsAsync());
             }
             catch (Exception e)
             {
-                return new ObservableCollection<ApplicationModel>();
+                return new ObservableCollection<ExtendedApplicationModel>();
             }
             finally
             {
@@ -205,17 +199,17 @@ namespace GotifyDesktop.ViewModels
 
         public async Task LogoutAsync()
         {
-            var userResult = await Dialog.ShowDialogAsync(ButtonEnum.YesNo, "LogOut", "Are you sure you want to logout from the server!", Icon.Warning);
-            if(userResult == ButtonResult.Yes)
-            {
-                databaseService.ResetDB();
-                Applications.Clear();
-                MessageModels.Clear();
-                
-                firstSync = true;
+            ThemeService.SetDarkTheme();
+            await SettingsViewModel.ShowAsync();
+            //var userResult = await Dialog.ShowDialogAsync(ButtonEnum.YesNo, "LogOut", "Are you sure you want to logout from the server!", Icon.Warning);
+            //if(userResult == ButtonResult.Yes)
+            //{
+            //    //databaseService.ResetDB();
+            //    Applications.Clear();
+            //    MessageModels.Clear();
 
-                await SetupSeverAsync();
-            }
+            //    await SetupSeverAsync();
+            //}
         }
     }
 }

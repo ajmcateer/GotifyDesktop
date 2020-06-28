@@ -1,4 +1,5 @@
 ﻿using GotifyDesktop.Infrastructure;
+using GotifyDesktop.Models;
 using gotifySharp.Models;
 using Serilog;
 using System;
@@ -55,16 +56,8 @@ namespace GotifyDesktop.Service
             _gotifyService.Configure(url, port, username, password, path, protocol);
         }
 
-        public abstract Task FullSyncAsync();
-
-        public abstract Task<List<ApplicationModel>> GetApplicationsAsync();
-
-        public abstract Task GetMessagesForApplication(int appId);
+        public abstract Task<List<ExtendedApplicationModel>> GetApplicationsAsync();
 
         public abstract Task<List<MessageModel>> GetMessagesPerAppAsync(int id);
-
-        public abstract Task IncrementalSyncAsync();
-
-        public abstract void Update(int appId);
     }
 }

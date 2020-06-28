@@ -20,8 +20,6 @@ namespace GotifyDesktop.ViewModels
         ISyncService syncService;
         IDatabaseService databaseService;
 
-        int HighestMessage = 0;
-
         public ObservableCollection<MessageModel> MessageModels
         {
             get => messageModels;
@@ -44,67 +42,6 @@ namespace GotifyDesktop.ViewModels
             var res = databaseService.GetMessagesForApplication(e);
             res.Reverse();
             MessageModels = new ObservableCollection<MessageModel>(res);
-        }
-
-        public async Task Init()
-        {
-            await UpdateMessages();
-        }
-
-        private async void dispatcherTimer_TickAsync(object sender, EventArgs e)
-        {
-            await UpdateMessages();
-        }
-
-        private async Task UpdateMessages()
-        {
-            await syncService.GetMessagesForApplication(application.id);
-            await GetMessagesFromDBAsync();
-        }
-
-        private async Task GetMessagesFromDBAsync()
-        {
-            MessageModels.Clear();
-
-            try
-            {
-                var response = databaseService.GetMessagesForApplication(application.id);
-                //Display messages in descending order like Gotify Web UI
-                response.Reverse();
-
-                foreach (var message in response)
-                {
-                    MessageModels.Add(message);
-                    if(message.id > HighestMessage)
-                    {
-                        HighestMessage = message.id;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-        }
-
-        private async Task GetNewMessagesFromDBAsync()
-        {
-
-            try
-            {
-                var response = databaseService.GetNewMessagesForApplication(application.id, HighestMessage);
-                //Display messages in descending order like Gotify Web UI
-                response.Reverse();
-
-                foreach (var message in response)
-                {
-                    MessageModels.Insert(0,message);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
         }
     }
 }

@@ -7,20 +7,34 @@
         xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
         xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        Width="1200"
+        Height="800"
         x:Class="GotifyDesktop.Views.MainWindow"
         xmlns:local="clr-namespace:GotifyDesktop.Views"
         Name="MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="GotifyDesktop"
-        Background="#303030">
+        Title="GotifyDesktop">
+  
 
-    <i:Interaction.Behaviors>
+  <i:Interaction.Behaviors>
       <ia:EventTriggerBehavior EventName="Opened" SourceObject="{Binding MainWindow}">
         <ia:CallMethodAction TargetObject="{Binding}" MethodName="Initialize"/>
       </ia:EventTriggerBehavior>
     </i:Interaction.Behaviors>
   
-    <Window.Styles>
+    <!--<Window.Styles>
+      <Style Selector="Button.Round /template/ContentPresenter">
+        <Setter Property="CornerRadius" Value="30"/>
+      </Style>
+
+      <Style Selector="Button">
+        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="#001011"/>
+      </Style>
+
       <Style Selector="TabControl">
         <Setter Property="Background" Value="#303030"/>
       </Style>
@@ -59,12 +73,12 @@
       <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="#f0f0f0"/>
       </Style>
-    </Window.Styles>
+    </Window.Styles>-->
 
   <Grid>
-
+    
     <Grid.RowDefinitions>
-      <RowDefinition Height="50"/>
+      <!--<RowDefinition Height="50"/>-->
       <RowDefinition Height="1*"/>
       <RowDefinition Height="50"/>
     </Grid.RowDefinitions>
@@ -74,7 +88,7 @@
       <ColumnDefinition Width="1*"/>
     </Grid.ColumnDefinitions>
 
-    <Grid Grid.Column="0" 
+    <!--<Grid Grid.Column="0" 
           Grid.ColumnSpan="3" 
           Background="#3f51b5">
       <Grid.ColumnDefinitions>
@@ -108,58 +122,105 @@
               BorderThickness="0"
               VerticalAlignment="Center"
               Command="{Binding LogoutAsync}"/>
-    </Grid>
+    </Grid>-->
       
     <!--<Menu Grid.Row="0" Grid.ColumnSpan="3" Foreground="White" Background="#3f51b5">
       --><!--<MenuItem Header="Server" Command="{Binding ChangeServer}"/>--><!--
     </Menu>-->
 
-    <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
+    <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
       <local:AlertMessageView
         DataContext="{Binding AlertMessageViewModel}"
         IsVisible="{Binding IsDisplayVisible, FallbackValue=false}"
         DockPanel.Dock="Top">
       </local:AlertMessageView>
-      <ListBox
-        DockPanel.Dock="Left"
-        ScrollViewer.VerticalScrollBarVisibility="Disabled"
-        Background="#424242"
-        Width="125"
-        SelectionMode="Single"
-        SelectedItem="{Binding SelectedItem}"
-        BorderThickness="0"
-        Items="{Binding Applications}">
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <StackPanel Orientation="Horizontal">
-              <TextBlock
-                Foreground="White"
-                Height="32"
-                FontSize="20"
-                HorizontalAlignment="Left"
-                Text="{Binding name}"/>
-              <!--<Image 
-              Source="avares://GotifyDesktop/Assets/defaultapp.png"
-              Height="16"
-              Width="16"/>-->
-            </StackPanel>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+      <Grid DockPanel.Dock="Left">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="32"/>
+          <RowDefinition Height="32"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <!--Background="#424242"-->
+        <ListBox
+          ScrollViewer.VerticalScrollBarVisibility="Disabled"
+          
+          MinWidth="150"
+          SelectionMode="Single"
+          SelectedItem="{Binding SelectedItem}"
+          BorderThickness="0"
+          Grid.Row="0"
+          Items="{Binding Applications}"
+          MaxWidth="300">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid DockPanel.Dock="Left">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <!--Foreground="White"-->
+                <TextBlock
+                  
+                  Height="32"
+                  FontSize="20"
+                  Text="{Binding name}"
+                  Grid.Column="0" 
+                  HorizontalAlignment="Left"/>
+                <Image
+                  Source="avares://GotifyDesktop/Assets/Alert-Light.ico"
+                  Height="16"
+                  Width="16"
+                  DockPanel.Dock="Right"
+                  Margin="5"
+                  Grid.Column="1"
+                  IsVisible="{Binding HasAlert}"
+                  HorizontalAlignment="Right"/>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <!--Background="#424242"
+        Foreground="White"-->
+        <Button
+          Grid.Row="1"
+          Content="Settings"
+          VerticalAlignment="Bottom"
+          
+
+          Height="32"
+          FontSize="15"/>
+        <!--Background="#424242"
+        Foreground="White"-->
+        <Button
+          Grid.Row="2"
+          Content="Logout"
+          VerticalAlignment="Bottom"
+
+
+          Height="32"
+          FontSize="15"
+          Command="{Binding LogoutAsync}"/>
+      </Grid>
+
       <ScrollViewer Grid.Column="1" Grid.Row="1" DockPanel.Dock="Right">
-        <ItemsControl Background="Gold"
+        <ItemsControl 
                       Grid.Row="1"
                       BorderThickness="0"
                       Grid.Column="1"
                       Items="{Binding MessageModels}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
+              <!--Background="#424242"
+                BorderBrush="#424242"-->
               <Border HorizontalAlignment="Center"
                 MinWidth="600"
                 MaxWidth="600"
                 Margin="10"
-                Background="#424242"
-                BorderBrush="#424242"
+                
                 BorderThickness="2"
                 CornerRadius="3"
                 Padding="4">
@@ -169,7 +230,8 @@
                          Width="64"
                          DockPanel.Dock="Left">
                   </Image>
-                  <TextBlock Foreground="White"
+                  <!--Foreground="White"-->
+                  <TextBlock 
                              DockPanel.Dock="Top"
                              Height="32"
                              TextWrapping="Wrap"
@@ -177,7 +239,8 @@
                              HorizontalAlignment="Left"
                              Text="{Binding title}">
                   </TextBlock>
-                  <TextBlock Foreground="White"
+                  <!--Foreground="White"-->
+                  <TextBlock 
                              DockPanel.Dock="Bottom"
                              TextWrapping="Wrap"
                              HorizontalAlignment="Left"
@@ -191,6 +254,25 @@
         </ItemsControl>
       </ScrollViewer>
     </DockPanel>
+    <!--Background="#3f51b5"
+      Foreground="White"-->
+    <Button
+      Classes="Round"
+      Grid.Column="3"
+      HorizontalAlignment="Right"
+      Grid.Row="3"
+      Width="50"
+      Height="50"
+      Margin="0,0,25,10"
+      
+      FontSize="40">
+      <Image Source="avares://GotifyDesktop/Assets/Plus-Light-Thin.ico"
+             Height="40"
+             Width="40"
+             DockPanel.Dock="Left"/>
+     </Button>
+
+
     <local:AddServerView
       DataContext="{Binding AddServerViewModel}"
       Grid.Column="0"
@@ -201,6 +283,13 @@
       IsVisible="{Binding IsVisible, FallbackValue=false}"/>
     <local:BusyView
       DataContext="{Binding BusyViewModel}"
+      Grid.Column="0"
+      Grid.Row="0"
+      Grid.RowSpan="3"
+      Grid.ColumnSpan="3"
+      IsVisible="{Binding IsVisible, FallbackValue=false}"/>
+    <local:SettingsView
+      DataContext="{Binding SettingsViewModel}"
       Grid.Column="0"
       Grid.Row="0"
       Grid.RowSpan="3"

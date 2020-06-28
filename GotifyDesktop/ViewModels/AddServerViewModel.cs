@@ -1,11 +1,13 @@
 ﻿using Autofac;
 using GotifyDesktop.Infrastructure;
+using GotifyDesktop.Interfaces;
 using GotifyDesktop.Models;
 using GotifyDesktop.Service;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using Serilog;
+using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class AddServerViewModel : ViewModelBase
+    public class AddServerViewModel : ViewModelBase, ISettingsPageInterface
     {
         TaskCompletionSource<ServerInfo> taskCompletionSource;
         ObservableCollection<string> protocols;
@@ -96,20 +98,18 @@ namespace GotifyDesktop.ViewModels
         public event SaveServer saveServerEvent;
 
         IGotifyServiceFactory gotifyServiceFactory;
-        IDatabaseService databaseService;
         ILogger logger;
 
-        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, IDatabaseService databaseService, ILogger logger)
+        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger)
         {
             this.gotifyServiceFactory = gotifyServiceFactory;
-            this.databaseService = databaseService;
             this.logger = logger;
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
             ResetView();
         }
 
-        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, IDatabaseService databaseService, ILogger logger, ServerInfo serverInfo) 
-            : this(gotifyServiceFactory, databaseService, logger)
+        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger, ServerInfo serverInfo) 
+            : this(gotifyServiceFactory, logger)
         {
             this.serverInfo = serverInfo;
             Username = serverInfo.Username;
@@ -130,6 +130,11 @@ namespace GotifyDesktop.ViewModels
             Port = String.Empty;
             Username = String.Empty;
             Password = String.Empty;
+        }
+
+        public void ConfigureView(ServerInfo serverInfo)
+        {
+
         }
 
         private string GenerateClientName()
@@ -153,7 +158,6 @@ namespace GotifyDesktop.ViewModels
         public void Save()
         {
             var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName);
-            databaseService.InsertServer(serverInfo);
 
             taskCompletionSource.SetResult(serverInfo);
             //saveServerEvent?.Invoke();
@@ -186,6 +190,22 @@ namespace GotifyDesktop.ViewModels
                 await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Failure", "Server is not reachable", Icon.Error);
                 IsSaveEnabled = false;
             }
+        }
+
+        Dictionary<string, string> ISettingsPageInterface.Save()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+
+            var t = typeof(AddServerViewModel);
+            foreach (var prop in t.GetProperties())
+            {
+                if (prop.PropertyType == typeof(string))
+                {
+                    properties.Add(prop.Name, (string)prop.GetValue(this));
+                }
+            }
+
+            return properties;
         }
     }
 }

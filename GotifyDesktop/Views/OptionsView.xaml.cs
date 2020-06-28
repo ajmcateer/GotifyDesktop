@@ -4,14 +4,11 @@ using Avalonia.Markup.Xaml;
 
 namespace GotifyDesktop.Views
 {
-    public class MainWindow : Window
+    public class OptionsView : UserControl
     {
-        public MainWindow()
+        public OptionsView()
         {
-            InitializeComponent();
-#if DEBUG
-            //this.AttachDevTools();
-#endif
+            this.InitializeComponent();
         }
 
         private void InitializeComponent()

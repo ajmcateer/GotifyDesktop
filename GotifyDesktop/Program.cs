@@ -5,6 +5,7 @@ using Autofac.Core;
 using AutofacSerilogIntegration;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 using GotifyDesktop.Infrastructure;
@@ -52,8 +53,6 @@ namespace GotifyDesktop
                 .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
-
-
             // Register individual components
 
             builder.Register(c =>
@@ -67,12 +66,14 @@ namespace GotifyDesktop
 
             //builder.RegisterInstance(options).As<DbContextOptionsBuilder<DbContext>>();
             builder.RegisterLogger();
+            builder.RegisterType<AddServerViewModel>();
+            builder.RegisterType<OptionsViewModel>();
+            builder.RegisterType<SettingsViewModel>();
             builder.RegisterType<DatabaseContextFactory>();
             builder.RegisterType<DatabaseService>().As<IDatabaseService>();
             builder.RegisterType<GotifyServiceFactory>().As<IGotifyServiceFactory>();
             builder.RegisterType<GotifySharp>();
-            builder.RegisterType<SyncService>().As<ISyncService>();
-            builder.RegisterType<AddServerViewModel>();
+            builder.RegisterType<NoSyncService>().As<ISyncService>();
             builder.RegisterType<BusyViewModel>();
             builder.RegisterType<AlertMessageViewModel>();
             builder.RegisterType<MainWindowViewModel>();
@@ -83,7 +84,10 @@ namespace GotifyDesktop
                 DataContext = container.Resolve<MainWindowViewModel>()
             };
 
+            ThemeService.Initialize();
+
             app.Run(window);
+           
         }
     }
 }

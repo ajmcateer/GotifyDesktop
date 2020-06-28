@@ -1,0 +1,38 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+             xmlns:local="clr-namespace:GotifyDesktop.Views"
+             x:Class="GotifyDesktop.Views.SettingsView"
+             Background="#898B8B8B">
+  <Grid 
+        Width="450"
+        Height="500">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="1*"/>
+      <RowDefinition Height="32"/>
+    </Grid.RowDefinitions>
+    <TabControl 
+                BorderBrush="Black"
+                BorderThickness="1"
+                Grid.Row="0">
+      <TabItem Header="Servers">
+        <local:AddServerView DataContext="{Binding AddServerViewModel}"/>
+      </TabItem>
+      <TabItem Header="Options">
+        <local:OptionsView DataContext="{Binding OptionsViewModel}"/>
+      </TabItem>
+    </TabControl>
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="1*"/>
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0">Apply</Button>
+      <Button Grid.Column="1">Save</Button>
+      <Button Grid.Column="2">Cancel</Button>
+    </Grid>
+  </Grid>
+</UserControl>
