@@ -15,6 +15,11 @@ namespace GotifyDesktop.Models
         public string Path { get; set; }
         public string ClientName { get; set; }
 
+        public ServerInfo()
+        {
+
+        }
+
         public ServerInfo(int ID, string Url, int Port, string Username, string Password, string Path, string Protocol, string ClientName)
         {
             this.ID = ID;

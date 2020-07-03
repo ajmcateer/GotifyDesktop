@@ -11,6 +11,8 @@ namespace GotifyDesktop.ViewModels
     {
         public ObservableCollection<string> Themes { get; set; }
 
+        public string SelectedTheme { get; set; }
+
         public OptionsViewModel()
         {
             Themes = new ObservableCollection<string>();

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class AddServerViewModel : ViewModelBase, ISettingsPageInterface
+    public class AddServerViewModel : ViewModelBase, IServerPageInterface
     {
         TaskCompletionSource<ServerInfo> taskCompletionSource;
         ObservableCollection<string> protocols;
@@ -192,7 +192,7 @@ namespace GotifyDesktop.ViewModels
             }
         }
 
-        Dictionary<string, string> ISettingsPageInterface.Save()
+        Dictionary<string, string> SaveTest()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>();
 
@@ -206,6 +206,20 @@ namespace GotifyDesktop.ViewModels
             }
 
             return properties;
+        }
+
+        ServerInfo IServerPageInterface.Save()
+        {
+            return new ServerInfo()
+            {
+                ClientName = this.ClientName,
+                Password = this.Password,
+                Path = this.Path,
+                Port = int.Parse(this.Port),
+                Protocol = this.SelectedProtocol,
+                Url = this.Url,
+                Username = this.Username
+            };
         }
     }
 }

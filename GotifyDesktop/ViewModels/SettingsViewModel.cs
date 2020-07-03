@@ -13,7 +13,7 @@ namespace GotifyDesktop.ViewModels
         TaskCompletionSource<int> taskCompletionSource;
         private bool isVisible;
 
-        ISettingsPageInterface addServerViewModel;
+        IServerPageInterface addServerViewModel;
         ISettingsPageInterface optionsViewModel;
         IDatabaseService databaseService;
 
@@ -28,7 +28,7 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref optionsViewModel, value);
         }
 
-        public ISettingsPageInterface AddServerViewModel
+        public IServerPageInterface AddServerViewModel
         {
             get => addServerViewModel;
             set => this.RaiseAndSetIfChanged(ref addServerViewModel, value);
