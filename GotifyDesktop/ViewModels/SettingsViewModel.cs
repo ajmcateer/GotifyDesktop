@@ -22,6 +22,7 @@ namespace GotifyDesktop.ViewModels
             get => databaseService;
             set => this.RaiseAndSetIfChanged(ref databaseService, value);
         }
+
         public ISettingsPageInterface OptionsViewModel
         {
             get => optionsViewModel;
@@ -46,10 +47,11 @@ namespace GotifyDesktop.ViewModels
             OptionsViewModel = optionsViewModel;
             DatabaseService = databaseService;
         }
-
+        
         public async Task<int> ShowAsync()
         {
             IsVisible = true;
+            AddServerViewModel.SetServer(DatabaseService.GetServer());
             taskCompletionSource = new TaskCompletionSource<int>();
 
             var result = await taskCompletionSource.Task;
@@ -57,5 +59,21 @@ namespace GotifyDesktop.ViewModels
             IsVisible = false;
             return 0;
         }
+
+        public async Task Apply()
+        {
+            var serverInfo = AddServerViewModel.Save();
+            var options = OptionsViewModel.Save();
+
+            databaseService.InsertServer(serverInfo);
+        }
+         
+        }
+
+        public async Task Cancel()
+        {
+            taskCompletionSource.SetResult(-1);
+        }
     }
 }
+/;;;;;;;;

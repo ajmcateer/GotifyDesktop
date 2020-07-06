@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
              xmlns:local="clr-namespace:GotifyDesktop.Views"
-             x:Class="GotifyDesktop.Views.SettingsView"
-             Background="#898B8B8B">
+             x:Class="GotifyDesktop.Views.SettingsView">
+    <!--Background="#898B8B8B"-->
   <Grid 
         Width="450"
         Height="500">
@@ -29,10 +29,10 @@
         <ColumnDefinition Width="1*"/>
         <ColumnDefinition Width="1*"/>
         <ColumnDefinition Width="1*"/>
-      </Grid.ColumnDefinitions>
-      <Button Grid.Column="0">Apply</Button>
-      <Button Grid.Column="1">Save</Button>
-      <Button Grid.Column="2">Cancel</Button>
+    </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Command="{Binding Apply}">Apply</Button>
+        <Button Grid.Column="1" Command="{Binding Save}">Save</Button>
+        <Button Grid.Column="2" Command="{Binding Cancel}">Cancel</Button>
     </Grid>
   </Grid>
 </UserControl>

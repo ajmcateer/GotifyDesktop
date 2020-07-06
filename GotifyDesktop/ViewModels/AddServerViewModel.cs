@@ -221,5 +221,16 @@ namespace GotifyDesktop.ViewModels
                 Username = this.Username
             };
         }
+
+        public void SetServer(ServerInfo serverInfo)
+        {
+            this.ClientName = serverInfo.ClientName;
+            this.Password = serverInfo.Password;
+            this.Path = serverInfo.Path;
+            this.Port = serverInfo.Port.ToString();
+            this.SelectedProtocol = serverInfo.Protocol;
+            this.Url = serverInfo.Url;
+            this.Username = serverInfo.Username;
+        }
     }
 }

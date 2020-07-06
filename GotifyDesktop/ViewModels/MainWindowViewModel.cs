@@ -21,6 +21,8 @@ namespace GotifyDesktop.ViewModels
         
         BusyViewModel busyViewModel;
 
+        ServerInfo currentServer;
+
         ObservableCollection<ExtendedApplicationModel> applications;
         ExtendedApplicationModel selectedApplication;
         ObservableCollection<MessageModel> messageModels;
@@ -157,8 +159,8 @@ namespace GotifyDesktop.ViewModels
 
         private async Task SetupSeverAsync()
         {
-            var server = await GetServerInfo();
-            await ConfigureGotify(server);
+            currentServer = await GetServerInfo();
+            await ConfigureGotify(currentServer);
             Applications = await GetApplicationsAsync();
         }
 
@@ -200,7 +202,17 @@ namespace GotifyDesktop.ViewModels
         public async Task LogoutAsync()
         {
             ThemeService.SetDarkTheme();
-            await SettingsViewModel.ShowAsync();
+            int result = await SettingsViewModel.ShowAsync();
+
+            if(result != -1)
+            {
+                databaseService.GetServer();
+                //TODO: Add eval of new server vs current server to determine if reload is needed
+
+                ResetView();
+                SetupSeverAsync();
+            }
+
             //var userResult = await Dialog.ShowDialogAsync(ButtonEnum.YesNo, "LogOut", "Are you sure you want to logout from the server!", Icon.Warning);
             //if(userResult == ButtonResult.Yes)
             //{
@@ -210,6 +222,12 @@ namespace GotifyDesktop.ViewModels
 
             //    await SetupSeverAsync();
             //}
+        }
+
+        private void ResetView()
+        {
+            Applications.Clear();
+            MessageModels.Clear();
         }
     }
 }
