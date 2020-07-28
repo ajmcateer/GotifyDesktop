@@ -8,9 +8,9 @@ using System.Reactive.Disposables;
 
 namespace GotifyDesktop.Views
 {
-    public class SettingsView : ReactiveUserControl<SettingsViewModel>
+    public class ServerView : ReactiveUserControl<ServerViewModel>
     {
-        public SettingsView()
+        public ServerView()
         {
             this.InitializeComponent();
         }

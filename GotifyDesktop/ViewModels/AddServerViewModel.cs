@@ -7,7 +7,7 @@ using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using Serilog;
-using SharpDX.Direct2D1;
+//using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -105,7 +105,6 @@ namespace GotifyDesktop.ViewModels
             this.gotifyServiceFactory = gotifyServiceFactory;
             this.logger = logger;
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
-            ResetView();
         }
 
         public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger, ServerInfo serverInfo) 
@@ -133,8 +132,16 @@ namespace GotifyDesktop.ViewModels
         }
 
         public void ConfigureView(ServerInfo serverInfo)
-        {
 
+        {
+            this.serverInfo = serverInfo;
+            ClientName = serverInfo.ClientName;
+            Username = serverInfo.Username;
+            Password = serverInfo.Password;
+            Path = serverInfo.Path;
+            Port = serverInfo.Port.ToString();
+            Url = serverInfo.Url;
+            SelectedProtocol = serverInfo.Protocol;
         }
 
         private string GenerateClientName()
@@ -143,29 +150,12 @@ namespace GotifyDesktop.ViewModels
             return "GotifyDesktop-" + epoch.Substring(epoch.Length - 8);
         }
 
-        public async Task<ServerInfo> ShowAsync()
-        {
-            ResetView();
-            IsVisible = true;
-            taskCompletionSource = new TaskCompletionSource<ServerInfo>();
-            
-            var result = await taskCompletionSource.Task;
-
-            IsVisible = false;
-            return result;
-        }
-
         public void Save()
         {
-            var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName);
+            var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "Gotify Server");
 
             taskCompletionSource.SetResult(serverInfo);
             //saveServerEvent?.Invoke();
-        }
-
-        public void Close()
-        {
-            Program.window.Close();
         }
 
         public async Task CheckConnection()
@@ -176,7 +166,7 @@ namespace GotifyDesktop.ViewModels
                 var isConnGood = await gotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
                 if (isConnGood)
                 {
-                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Success);
+                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Info);
                     IsSaveEnabled = true;
                 }
                 else

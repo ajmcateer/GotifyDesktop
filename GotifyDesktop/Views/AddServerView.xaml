@@ -4,10 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
              x:Class="GotifyDesktop.Views.AddServerView">
-  <!--Background="#898B8B8B"-->
-  <!--Background="#303030"-->
-    <Grid Width="400"
-          Height="400">
+  <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="1*"/>
         <RowDefinition Height="3*"/>
@@ -19,15 +16,20 @@
         <ColumnDefinition Width="1*"/>
       </Grid.ColumnDefinitions>
 
-      <Grid Margin="0,30,0,0"
-            Height="290"
-            Grid.Column="1"
-            Grid.Row="1">
+      <Grid Height="350"
+            Width="300"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Grid.Row="0"
+            Grid.RowSpan="3">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="1*"/>
           <ColumnDefinition Width="2.5*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+          <RowDefinition Height="1*"/>
           <RowDefinition Height="1*"/>
           <RowDefinition Height="1*"/>
           <RowDefinition Height="1*"/>
@@ -85,8 +87,7 @@
                   Watermark="Client Name"
                   Text="{Binding ClientName}"
                   ToolTip.Tip="Client Name"/>
-        <ComboBox Background="White"
-                  Grid.Column="1"
+        <DropDown Grid.Column="1"
                   Grid.Row="1"
                   Margin="5"
                   Items="{Binding Protocols}"
@@ -123,34 +124,30 @@
                   Watermark="Password"
                   Text="{Binding Password}"
                   ToolTip.Tip="Password"/>
-        <Grid Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2">
+        <Grid Grid.Column="0" 
+              Grid.Row="7" 
+              Grid.ColumnSpan="2"
+              Grid.RowSpan="2"
+              >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
-            <!--<ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>-->
           </Grid.ColumnDefinitions>
-          <!--Background="#3f51b5"-->
+          <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+          </Grid.RowDefinitions>
           <Button Content="Test Connection"
                   Grid.Column="0"
+                  Grid.ColumnSpan="2"
                   Margin="5"
-
                   Command="{Binding CheckConnection}"
                   ToolTip.Tip="Test Connection"/>
-          <!--<Button Content="Save"
-                  Grid.Column="1"
-                  Command="{Binding Save}"
+          <Button Content="Save"
+                  Grid.Column="0"
+                  Grid.Row="7" 
                   Margin="5"
-                  Width="100"
-                  HorizontalAlignment="Center"
-                  IsEnabled="{Binding IsSaveEnabled}"
-                  ToolTip.Tip="Save"/>
-          <Button Content="Cancel"
-                  Grid.Column="2"
-                  Command="{Binding Close}"
-                  Margin="5"
-                  Width="100"
-                  HorizontalAlignment="Right"
-                  ToolTip.Tip="Close"/>-->
+                  Command="{Binding CheckConnection}"
+                  ToolTip.Tip="Test Connection"/>
         </Grid>
       </Grid>
     </Grid>

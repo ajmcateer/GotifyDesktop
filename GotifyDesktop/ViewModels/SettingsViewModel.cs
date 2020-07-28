@@ -1,6 +1,8 @@
 ﻿using GotifyDesktop.Interfaces;
+using GotifyDesktop.Models;
 using GotifyDesktop.Service;
 using ReactiveUI;
+using Splat;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,14 +10,27 @@ using System.Threading.Tasks;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class SettingsViewModel : ViewModelBase
+    public class SettingsViewModel : ViewModelBase, IRoutableViewModel
     {
-        TaskCompletionSource<int> taskCompletionSource;
-        private bool isVisible;
+
+        // Reference to IScreen that owns the routable view model.
+        public IScreen HostScreen { get; }
+
+        // Unique identifier for the routable view model.
+        public string UrlPathSegment { get; } = Guid.NewGuid().ToString().Substring(0, 5);
+        public ServerInfo serverInfo;
+        private ServerInfo newServerInfo;
 
         IServerPageInterface addServerViewModel;
         ISettingsPageInterface optionsViewModel;
         IDatabaseService databaseService;
+        RoutingService routingService;
+
+        public ServerInfo NewServerInfo
+        {
+            get => newServerInfo;
+            set => this.RaiseAndSetIfChanged(ref newServerInfo, value);
+        }
 
         public IDatabaseService DatabaseService
         {
@@ -35,45 +50,44 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref addServerViewModel, value);
         }
 
-        public bool IsVisible
+        public SettingsViewModel(AddServerViewModel addServerViewModel, OptionsViewModel optionsViewModel,
+            IDatabaseService databaseService)
         {
-            get => isVisible;
-            set => this.RaiseAndSetIfChanged(ref isVisible, value);
-        }
+            HostScreen = Locator.Current.GetService<IScreen>();
 
-        public SettingsViewModel(AddServerViewModel addServerViewModel, OptionsViewModel optionsViewModel, IDatabaseService databaseService)
-        {
             AddServerViewModel = addServerViewModel;
             OptionsViewModel = optionsViewModel;
             DatabaseService = databaseService;
+
+            //this.routingService = routingService;
         }
-        
-        public async Task<int> ShowAsync()
+
+        public void SetupSettings(ServerInfo serverInfo)
         {
-            IsVisible = true;
-            AddServerViewModel.SetServer(DatabaseService.GetServer());
-            taskCompletionSource = new TaskCompletionSource<int>();
-
-            var result = await taskCompletionSource.Task;
-
-            IsVisible = false;
-            return 0;
+            addServerViewModel.SetServer(serverInfo);
         }
 
         public async Task Apply()
         {
-            var serverInfo = AddServerViewModel.Save();
-            var options = OptionsViewModel.Save();
+            NewServerInfo = AddServerViewModel.Save();
+            //var options = OptionsViewModel.Save();
 
-            databaseService.InsertServer(serverInfo);
+            databaseService.InsertServer(newServerInfo);
         }
-         
+
+        public async Task Save()
+        {
+            NewServerInfo = AddServerViewModel.Save();
+            //var options = OptionsViewModel.Save();
+
+            databaseService.InsertServer(newServerInfo);
+            Cancel();
         }
 
         public async Task Cancel()
         {
-            taskCompletionSource.SetResult(-1);
+            var test = Locator.Current.GetService<ICustomScreen>();
+            _ = test.Router.NavigateBack.Execute();
         }
     }
 }
-/;;;;;;;;

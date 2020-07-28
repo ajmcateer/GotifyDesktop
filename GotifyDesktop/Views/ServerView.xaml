@@ -1,0 +1,117 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:GotifyDesktop.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GotifyDesktop.Views.ServerView">
+  
+  <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
+      <local:AlertMessageView
+        DataContext="{Binding AlertMessageViewModel}"
+        IsVisible="{Binding IsDisplayVisible, FallbackValue=false}"
+        DockPanel.Dock="Top">
+      </local:AlertMessageView>
+      <Grid DockPanel.Dock="Left">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="2*"/>
+          <RowDefinition Height="32"/>
+          <RowDefinition Height="32"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <ListBox
+          ScrollViewer.VerticalScrollBarVisibility="Disabled"         
+          MinWidth="150"
+          SelectionMode="Single"
+          SelectedItem="{Binding SelectedItem}"
+          BorderThickness="0"
+          Grid.Row="0"
+          Items="{Binding Applications}"
+          MaxWidth="300">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid DockPanel.Dock="Left">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="1*"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                  Height="32"
+                  FontSize="20"
+                  Text="{Binding name}"
+                  Grid.Column="0" 
+                  HorizontalAlignment="Left"/>
+                <Image
+                  Source="avares://GotifyDesktop/Assets/Alert-Light.ico"
+                  Height="16"
+                  Width="16"
+                  DockPanel.Dock="Right"
+                  Margin="5"
+                  Grid.Column="1"
+                  IsVisible="{Binding HasAlert}"
+                  HorizontalAlignment="Right"/>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+            
+        <!--<Button
+          Grid.Row="2"
+          Content="Settings"
+          VerticalAlignment="Bottom"
+          Height="32"
+          FontSize="15"
+          Command="{Binding ShowSettings}"/>-->
+      </Grid>
+
+      <ScrollViewer Grid.Column="1" Grid.Row="1" DockPanel.Dock="Right">
+        <ItemsControl 
+                      Grid.Row="1"
+                      BorderThickness="0"
+                      Grid.Column="1"
+                      Items="{Binding MessageModels}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>  
+              <Border HorizontalAlignment="Center"
+                MinWidth="600"
+                MaxWidth="600"
+                Margin="10"
+                
+                BorderThickness="2"
+                CornerRadius="3"
+                Padding="4">
+                <DockPanel>
+                  <Image Source="avares://GotifyDesktop/Assets/defaultapp.png"
+                         Height="64"
+                         Width="64"
+                         DockPanel.Dock="Left">
+                  </Image>
+                  
+  
+                  <TextBlock 
+                             DockPanel.Dock="Top"
+                             Height="32"
+                             TextWrapping="Wrap"
+                             FontSize="20"
+                             HorizontalAlignment="Left"
+                             Text="{Binding title}">
+                  </TextBlock>
+                  
+                  <TextBlock 
+                             DockPanel.Dock="Bottom"
+                             TextWrapping="Wrap"
+                             HorizontalAlignment="Left"
+                             FontSize="14"
+                             Text="{Binding message}">
+                  </TextBlock>
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </DockPanel>
+</UserControl>

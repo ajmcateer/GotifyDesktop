@@ -47,7 +47,7 @@ namespace GotifyDesktop.Service
         /// </summary>
         public static void Initialize()
         {
-            Program.window.Styles.Add(AvaloniaLightTheme);
+            App.Current.Styles.Add(AvaloniaLightTheme);
             IsInitialized = true;
 
             if (IsPending)
@@ -101,28 +101,28 @@ namespace GotifyDesktop.Service
         public static void SetSystemTheme()
         {
             var useDarkTheme = false;
-            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            //{
-            //    useDarkTheme = Avalonia.Native.Windows.WindowsUtils.IsAppLightThemePreferred();
-            //}
-            //else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            //{
-            //    useDarkTheme = Native.MacOS.MacUtils.IsDarkModeEnabled();
-            //}
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                useDarkTheme = Native.Windows.WindowsUtils.IsAppLightThemePreferred();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                useDarkTheme = Native.MacOS.MacUtils.IsDarkModeEnabled();
+            }
 
             if (useDarkTheme)
             {
-                SetDarkTheme();
+                SetLightTheme();
             }
             else
             {
-                SetLightTheme();
+                SetDarkTheme();
             }
         }
 
         private static void ApplyTheme()
         {
-            Program.window.Styles[0] = CurrentAvaloniaTheme;
+            App.Current.Styles[0] = CurrentAvaloniaTheme;
         }
     }
 }
