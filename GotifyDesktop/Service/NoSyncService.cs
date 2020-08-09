@@ -1,4 +1,5 @@
 ﻿using GotifyDesktop.Infrastructure;
+using GotifyDesktop.Models;
 using gotifySharp.Models;
 using Serilog;
 using System;
@@ -10,41 +11,26 @@ namespace GotifyDesktop.Service
 {
     class NoSyncService : AbstractSyncService
     {
-
-
         public NoSyncService(IGotifyServiceFactory gotifyServiceFactory, ILogger logger) : base(gotifyServiceFactory, logger)
         {
 
         }
 
-        public override Task FullSyncAsync()
+        public override async Task<List<ExtendedApplicationModel>> GetApplicationsAsync()
         {
-            throw new NotImplementedException();
-        }
+            List<ExtendedApplicationModel> applicationModels = new List<ExtendedApplicationModel>();
+            var result = await _gotifyService.GetApplications();
+            foreach(var obj in result)
+            {
+                applicationModels.Add(new ExtendedApplicationModel(obj));
+            }
 
-        public override async Task<List<ApplicationModel>> GetApplicationsAsync()
-        {
-           return await _gotifyService.GetApplications();
-        }
-
-        public override Task GetMessagesForApplication(int appId)
-        {
-            throw new NotImplementedException();
+            return applicationModels;
         }
 
         public override async Task<List<MessageModel>> GetMessagesPerAppAsync(int id)
         {
             return await _gotifyService.GetMessagesForApplication(id);
-        }
-
-        public override Task IncrementalSyncAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Update(int appId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

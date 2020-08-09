@@ -1,11 +1,13 @@
 ﻿using Autofac;
 using GotifyDesktop.Infrastructure;
+using GotifyDesktop.Interfaces;
 using GotifyDesktop.Models;
 using GotifyDesktop.Service;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using Serilog;
+//using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,11 +16,12 @@ using System.Threading.Tasks;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class AddServerViewModel : ViewModelBase
+    public class AddServerViewModel : ViewModelBase, IServerPageInterface
     {
         TaskCompletionSource<ServerInfo> taskCompletionSource;
         ObservableCollection<string> protocols;
-        ServerInfo serverInfo;
+        private ServerInfo updatedServer;
+        private ServerInfo oldServer;
 
         private bool isVisible;
         private bool isSaveEnabled;
@@ -29,6 +32,12 @@ namespace GotifyDesktop.ViewModels
         private string password;
         private string clientname;
         private string selectedProtocol;
+
+        public ServerInfo UpdatedServer
+        {
+            get => updatedServer;
+            set => this.RaiseAndSetIfChanged(ref updatedServer, value);
+        }
 
         public string SelectedProtocol
         {
@@ -96,40 +105,25 @@ namespace GotifyDesktop.ViewModels
         public event SaveServer saveServerEvent;
 
         IGotifyServiceFactory gotifyServiceFactory;
-        IDatabaseService databaseService;
         ILogger logger;
 
-        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, IDatabaseService databaseService, ILogger logger)
+        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger)
         {
             this.gotifyServiceFactory = gotifyServiceFactory;
-            this.databaseService = databaseService;
             this.logger = logger;
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
-            ResetView();
         }
 
-        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, IDatabaseService databaseService, ILogger logger, ServerInfo serverInfo) 
-            : this(gotifyServiceFactory, databaseService, logger)
+        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger, ServerInfo serverInfo) 
+            : this(gotifyServiceFactory, logger)
         {
-            this.serverInfo = serverInfo;
-            Username = serverInfo.Username;
-            Password = serverInfo.Password;
-            Path = serverInfo.Path;
-            Port = serverInfo.Port.ToString();
-            Url = serverInfo.Url;
-            SelectedProtocol = serverInfo.Protocol;
-        }
-
-        private void ResetView()
-        {
-            Path = "/";
-            IsSaveEnabled = false;
-            ClientName = GenerateClientName();
-            SelectedProtocol = "Http";
-            Url = String.Empty;
-            Port = String.Empty;
-            Username = String.Empty;
-            Password = String.Empty;
+            this.oldServer = serverInfo;
+            Username = oldServer.Username;
+            Password = oldServer.Password;
+            Path = oldServer.Path;
+            Port = oldServer.Port.ToString();
+            Url = oldServer.Url;
+            SelectedProtocol = oldServer.Protocol;
         }
 
         private string GenerateClientName()
@@ -138,30 +132,12 @@ namespace GotifyDesktop.ViewModels
             return "GotifyDesktop-" + epoch.Substring(epoch.Length - 8);
         }
 
-        public async Task<ServerInfo> ShowAsync()
-        {
-            ResetView();
-            IsVisible = true;
-            taskCompletionSource = new TaskCompletionSource<ServerInfo>();
-            
-            var result = await taskCompletionSource.Task;
-
-            IsVisible = false;
-            return result;
-        }
-
         public void Save()
         {
-            var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName);
-            databaseService.InsertServer(serverInfo);
+            var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "Gotify Server");
 
             taskCompletionSource.SetResult(serverInfo);
             //saveServerEvent?.Invoke();
-        }
-
-        public void Close()
-        {
-            Program.window.Close();
         }
 
         public async Task CheckConnection()
@@ -172,7 +148,7 @@ namespace GotifyDesktop.ViewModels
                 var isConnGood = await gotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
                 if (isConnGood)
                 {
-                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Success);
+                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Plus);
                     IsSaveEnabled = true;
                 }
                 else
@@ -186,6 +162,65 @@ namespace GotifyDesktop.ViewModels
                 await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Failure", "Server is not reachable", Icon.Error);
                 IsSaveEnabled = false;
             }
+        }
+
+        Dictionary<string, string> SaveTest()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+
+            var t = typeof(AddServerViewModel);
+            foreach (var prop in t.GetProperties())
+            {
+                if (prop.PropertyType == typeof(string))
+                {
+                    properties.Add(prop.Name, (string)prop.GetValue(this));
+                }
+            }
+
+            return properties;
+        }
+
+        ServerInfo IServerPageInterface.Save()
+        {
+            return new ServerInfo()
+            {
+                ClientName = this.ClientName,
+                Password = this.Password,
+                Path = this.Path,
+                Port = int.Parse(this.Port),
+                Protocol = this.SelectedProtocol,
+                Url = this.Url,
+                Username = this.Username
+            };
+        }
+
+        public void SaveNew()
+        {
+            var tempServer = new ServerInfo(0, Url, int.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "");
+            UpdatedServer = tempServer;
+        }
+
+        public void SetServerInfo(ServerInfo serverInfo)
+        {
+            this.ClientName = serverInfo.ClientName;
+            this.Password = serverInfo.Password;
+            this.Path = serverInfo.Path;
+            this.Port = serverInfo.Port.ToString();
+            this.SelectedProtocol = serverInfo.Protocol;
+            this.Url = serverInfo.Url;
+            this.Username = serverInfo.Username;
+        }
+
+        public void SetNewServer()
+        {
+            Path = "/";
+            IsSaveEnabled = false;
+            ClientName = GenerateClientName();
+            SelectedProtocol = "Http";
+            Url = String.Empty;
+            Port = String.Empty;
+            Username = String.Empty;
+            Password = String.Empty;
         }
     }
 }

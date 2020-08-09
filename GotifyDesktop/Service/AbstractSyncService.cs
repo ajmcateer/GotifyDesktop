@@ -1,4 +1,5 @@
 ﻿using GotifyDesktop.Infrastructure;
+using GotifyDesktop.Models;
 using gotifySharp.Models;
 using Serilog;
 using System;
@@ -21,10 +22,7 @@ namespace GotifyDesktop.Service
         public AbstractSyncService(IGotifyServiceFactory gotifyServiceFactory, ILogger logger)
         {
             _gotifyServiceFactory = gotifyServiceFactory;
-            _gotifyService = gotifyServiceFactory.CreateNewGotifyService(logger);
             _logger = logger;
-            _gotifyService.OnMessage += GotifyService_OnMessage;
-            _gotifyService.ConnectionState += GotifyService_ConnectionState;
         }
 
         internal virtual void GotifyService_ConnectionState(object sender, ConnectionStatus e)
@@ -49,22 +47,17 @@ namespace GotifyDesktop.Service
 
         public virtual void Configure(string url, int port, string username, string password, string path, string protocol)
         {
-            _logger.Information(_gotifyService.GetHashCode().ToString());
+            //_logger.Information(_gotifyService.GetHashCode().ToString());
             _gotifyService = _gotifyServiceFactory.CreateNewGotifyService(_logger);
             _logger.Information(_gotifyService.GetHashCode().ToString());
             _gotifyService.Configure(url, port, username, password, path, protocol);
+            InitWebsocket();
+            _gotifyService.OnMessage += GotifyService_OnMessage;
+            _gotifyService.ConnectionState += GotifyService_ConnectionState;
         }
 
-        public abstract Task FullSyncAsync();
-
-        public abstract Task<List<ApplicationModel>> GetApplicationsAsync();
-
-        public abstract Task GetMessagesForApplication(int appId);
+        public abstract Task<List<ExtendedApplicationModel>> GetApplicationsAsync();
 
         public abstract Task<List<MessageModel>> GetMessagesPerAppAsync(int id);
-
-        public abstract Task IncrementalSyncAsync();
-
-        public abstract void Update(int appId);
     }
 }

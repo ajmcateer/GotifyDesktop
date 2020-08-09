@@ -5,7 +5,8 @@ using Autofac.Core;
 using AutofacSerilogIntegration;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Logging.Serilog;
+using Avalonia.Controls.ApplicationLifetimes;
+//using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 using GotifyDesktop.Infrastructure;
 using GotifyDesktop.Service;
@@ -14,9 +15,11 @@ using GotifyDesktop.Views;
 using gotifySharp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using ReactiveUI;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Splat;
 
 namespace GotifyDesktop
 {
@@ -24,66 +27,83 @@ namespace GotifyDesktop
     {
         public static LoggingLevelSwitch loggingLevelSwitch;
 
-        public static MainWindow window;
-
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
-        public static void Main(string[] args) => BuildAvaloniaApp().Start(AppMain, args);
+        //public static void Main(string[] args) => BuildAvaloniaApp().Start(AppMain, args);
+
+
+        // The entry point. Things aren't ready yet, so at this point
+        // you shouldn't use any Avalonia types or anything that expects
+        // a SynchronizationContext to be ready
+        public static int Main(string[] args)
+          => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
 
         // Avalonia configuration, don't remove; also used by visual designer.
+        //public static AppBuilder BuildAvaloniaApp()
+        //    => AppBuilder.Configure<App>()
+        //        .UsePlatformDetect()
+        //        .LogToDebug()
+        //        .UseReactiveUI();
+
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
-                .UsePlatformDetect()
-                .LogToDebug()
-                .UseReactiveUI();
+            .UsePlatformDetect()
+            .UseReactiveUI();
 
         // Your application's entry point. Here you can initialize your MVVM framework, DI
         // container, etc.
         private static void AppMain(Application app, string[] args)
         {
-            var builder = new ContainerBuilder();
-            loggingLevelSwitch = new LoggingLevelSwitch();
-            loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
+            //var builder = new ContainerBuilder();
+            //loggingLevelSwitch = new LoggingLevelSwitch();
+            //loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
 
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(loggingLevelSwitch)
-                .WriteTo.Console()
-                .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
+            //Log.Logger = new LoggerConfiguration()
+            //    .MinimumLevel.ControlledBy(loggingLevelSwitch)
+            //    .WriteTo.Console()
+            //    .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
+            //    .CreateLogger();
 
+            //// Register individual components
 
+            //builder.Register(c =>
+            //{
+            //    DbContextOptionsBuilder<DbContext> options = new DbContextOptionsBuilder<DbContext>();
+            //    options.UseSqlite("Data Source=gotifyDesktop.db");
+            //    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
-            // Register individual components
+            //    return options;
+            //}).AsSelf();
 
-            builder.Register(c =>
-            {
-                DbContextOptionsBuilder<DbContext> options = new DbContextOptionsBuilder<DbContext>();
-                options.UseSqlite("Data Source=gotifyDesktop.db");
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            ////builder.RegisterInstance(options).As<DbContextOptionsBuilder<DbContext>>();
+            //builder.RegisterLogger();
+            //builder.RegisterType<MainWindowViewModel>();
+            //builder.RegisterType<AddServerViewModel>();
+            //builder.RegisterType<OptionsViewModel>();
+            //builder.RegisterType<SettingsViewModel>();
+            //builder.RegisterType<DatabaseContextFactory>();
+            //builder.RegisterType<DatabaseService>().As<IDatabaseService>();
+            //builder.RegisterType<GotifyServiceFactory>().As<IGotifyServiceFactory>();
+            //builder.RegisterType<GotifySharp>();
+            //builder.RegisterType<NoSyncService>().As<ISyncService>();
+            //builder.RegisterType<BusyViewModel>();
+            //builder.RegisterType<AlertMessageViewModel>();
+            //builder.RegisterType<RoutingService>().SingleInstance();
+            ////builder.Register(c => new RoutingService() { router = c.ResolveOptional<MainWindowViewModel>().Router }).SingleInstance();
+            //var container = builder.Build();
 
-                return options;
-            }).AsSelf();
+            //var test = Locator.Current.GetService<IScreen>();
+            //window = new MainWindow
+            //{
+            //    //DataContext = Locator.Current.GetService<IScreen>()
+            //    DataContext = container.Resolve<MainWindowViewModel>()
+            //};
 
-            //builder.RegisterInstance(options).As<DbContextOptionsBuilder<DbContext>>();
-            builder.RegisterLogger();
-            builder.RegisterType<DatabaseContextFactory>();
-            builder.RegisterType<DatabaseService>().As<IDatabaseService>();
-            builder.RegisterType<GotifyServiceFactory>().As<IGotifyServiceFactory>();
-            builder.RegisterType<GotifySharp>();
-            builder.RegisterType<SyncService>().As<ISyncService>();
-            builder.RegisterType<AddServerViewModel>();
-            builder.RegisterType<BusyViewModel>();
-            builder.RegisterType<AlertMessageViewModel>();
-            builder.RegisterType<MainWindowViewModel>();
-            var container = builder.Build();
+            //ThemeService.Initialize();
 
-            window = new MainWindow
-            {
-                DataContext = container.Resolve<MainWindowViewModel>()
-            };
-
-            app.Run(window);
+            //app.Run(window);
+           
         }
     }
 }

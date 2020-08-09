@@ -44,8 +44,8 @@ namespace GotifyDesktop.Service
         {
             using (var databaseContext = databaseContextFactory.CreateContext())
             {
-                databaseContext.Database.EnsureDeleted();
-                databaseContext.SaveChanges();
+                //databaseContext.Database.EnsureDeleted();
+                //databaseContext.SaveChanges();
             }
             _logger.Information("DB Deleted");
         }
@@ -63,9 +63,34 @@ namespace GotifyDesktop.Service
         public void InsertServer(ServerInfo serverInfo)
         {
             _logger.Information($"Inserting {serverInfo.Url}:{serverInfo.Port}/{serverInfo.Path}");
+
+            DeleteServers();
+
             using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 databaseContext.Server.Add(serverInfo);
+                databaseContext.SaveChanges();
+            }
+        }
+
+        public void UpsertServer(ServerInfo serverInfo)
+        {
+            _logger.Information($"Inserting {serverInfo.Url}:{serverInfo.Port}/{serverInfo.Path}");
+
+            DeleteServers();
+
+            using (var databaseContext = databaseContextFactory.CreateContext())
+            {
+                databaseContext.Server.Add(serverInfo);
+                databaseContext.SaveChanges();
+            }
+        }
+
+        public void DeleteServers()
+        {
+            using (var databaseContext = databaseContextFactory.CreateContext())
+            {
+                databaseContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE[Server]");
                 databaseContext.SaveChanges();
             }
         }
@@ -140,7 +165,7 @@ namespace GotifyDesktop.Service
                     {
                         _logger.Information($"Inserting {message.id}");
                         databaseContext.Messages.Add(message);
-                        databaseContext.SaveChanges();
+                        
                         _logger.Debug("Message Saved");
                     }
                 }
@@ -186,6 +211,20 @@ namespace GotifyDesktop.Service
             using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 return databaseContext.Server.FirstOrDefault();
+            }
+        }
+
+        public void UpdateServer(ServerInfo serverInfo)
+        {
+            using (var databaseContext = databaseContextFactory.CreateContext())
+            {
+                var servers = databaseContext.Server;
+                foreach(var server in servers)
+                {
+                    databaseContext.Server.Remove(server);
+                }
+                databaseContext.SaveChanges();
+                InsertServer(serverInfo);
             }
         }
     }

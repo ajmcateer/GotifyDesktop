@@ -27,10 +27,10 @@ namespace GotifyDesktop.Service
 
         public async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
         {
-            _logger.Information("Starting Connection Test");
+            //_logger.Information("Starting Connection Test");
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
             GotifySharp gotifySharp = new GotifySharp(config);
-            _logger.Debug("GotifySharp Configured");
+            //_logger.Debug("GotifySharp Configured");
 
             try
             {
@@ -38,18 +38,18 @@ namespace GotifyDesktop.Service
 
                 if (res.Success)
                 {
-                    _logger.Information("Test Success");
+                    //_logger.Information("Test Success");
                     return true;
                 }
                 else
                 {
-                    _logger.Information("Test Failed");
+                    //_logger.Information("Test Failed");
                     return false;
                 }
             }
             catch (HttpRequestException HttpExcep)
             {
-                _logger.Error(HttpExcep, "Test Failed");
+                //_logger.Error(HttpExcep, "Test Failed");
                 throw HttpExcep;
             }
         }

@@ -12,210 +12,148 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using GotifyDesktop.Exceptions;
+using System.Reactive.Linq;
+using Avalonia.Collections;
+using GotifyDesktop.Interfaces;
+using Avalonia.Controls;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, ICustomScreen
     {
-        bool firstSync = true;
-
         ILogger logger;
-        AddServerViewModel addServerViewModel;
-        BusyViewModel busyViewModel;
 
-        ObservableCollection<ApplicationModel> applications;
-        ApplicationModel selectedApplication;
-        ObservableCollection<MessageModel> messageModels;
-        AlertMessageViewModel alertMessageViewModel;
-        IContainer container;
+        ObservableCollection<ServerInfo> _server;
+        ServerInfo _selectedServer;
+
+        SettingsViewModel settingsViewModel;
+        ServerViewModel serverViewModel;
+        ObservableCollection<ServerViewModel> serverViewModels;
 
         IDatabaseService databaseService;
-        ISyncService syncService;
 
-        public AddServerViewModel AddServerViewModel
-        {
-            get => addServerViewModel;
-            set => this.RaiseAndSetIfChanged(ref addServerViewModel, value);
-        }
+        public RoutingState Router { get; } = new RoutingState();
 
-        public BusyViewModel BusyViewModel
+        public ServerInfo SelectedServer
         {
-            get => busyViewModel;
-            set => this.RaiseAndSetIfChanged(ref busyViewModel, value);
-        }
-
-        public AlertMessageViewModel AlertMessageViewModel
-        {
-            get => alertMessageViewModel;
-            set => this.RaiseAndSetIfChanged(ref alertMessageViewModel, value);
-        }
-
-        public ObservableCollection<MessageModel> MessageModels
-        {
-            get => messageModels;
-            set => this.RaiseAndSetIfChanged(ref messageModels, value);
-        }
-
-        public ApplicationModel SelectedItem
-        {
-            get => selectedApplication;
-            private set
+            get => _selectedServer;
+            set
             {
-                this.RaiseAndSetIfChanged(ref selectedApplication, value);
-                UpdateMessageDisplayAsync();
+                this.RaiseAndSetIfChanged(ref _selectedServer, value);
             }
         }
 
-        public ObservableCollection<ApplicationModel> Applications
+        public ObservableCollection<ServerInfo> Servers
         {
-            get => applications;
-            private set => this.RaiseAndSetIfChanged(ref applications, value);
+            get => _server;
+            set => this.RaiseAndSetIfChanged(ref _server, value);
         }
 
-        public MainWindowViewModel()
+        public SettingsViewModel SettingsViewModel
         {
-
+            get => settingsViewModel;
+            set => this.RaiseAndSetIfChanged(ref settingsViewModel, value);
         }
 
-        public MainWindowViewModel(AddServerViewModel addServerViewModel, BusyViewModel busyViewModel, AlertMessageViewModel alertMessageViewModel, 
-            IDatabaseService databaseService, ISyncService syncService, ILogger logger)
+        public ObservableCollection<ServerViewModel> ServerViewModels
         {
-            AddServerViewModel = addServerViewModel;
-            BusyViewModel = busyViewModel;
-            AlertMessageViewModel = alertMessageViewModel;
+            get => serverViewModels;
+            set => this.RaiseAndSetIfChanged(ref serverViewModels, value);
+        }
 
+        public MainWindowViewModel(SettingsViewModel settingsViewModel, ServerViewModel serverViewModel, IDatabaseService databaseService, ILogger logger)
+        {
+            ServerViewModels = new ObservableCollection<ServerViewModel>();
+            SettingsViewModel = settingsViewModel;
+            this.serverViewModel = serverViewModel;
+
+            Servers = new ObservableCollection<ServerInfo>();
             this.databaseService = databaseService;
-            this.syncService = syncService;
             this.logger = logger;
 
-            syncService.ConnectionState += SyncService_ConnectionState;
-            syncService.OnMessageRecieved += SyncService_OnMessageRecieved;
-            AlertMessageViewModel.Retry += AlertMessageViewModel_RetryAsync;
+            this.WhenAnyValue(x => x.SettingsViewModel.AddServerViewModel.UpdatedServer)
+                .Where(x => x != null)
+                .Subscribe(x => testAsync(x));
 
-            messageModels = new ObservableCollection<MessageModel>();
-            applications = new ObservableCollection<ApplicationModel>();
+            this.WhenAnyValue(x => x.SelectedServer)
+                .Where(x => x != null)
+                .Subscribe(x => ShowServerAsync(x));
         }
 
-        private void SyncService_ConnectionState(object sender, ConnectionStatus e)
+        private async Task ShowServerAsync(ServerInfo s)
         {
-            if (e == ConnectionStatus.Failed)
-            {
-                AlertMessageViewModel.IsDisplayVisible = true;
-            }
-            else if (e == ConnectionStatus.Successful)
-            {
-                AlertMessageViewModel.IsDisplayVisible = false;
-            }
+            await NavigateToServerAsync();
         }
 
-        private async void AddServerViewModel_saveServerEventAsync()
+        private async Task SetupServerAsync()
         {
-            Initialize(this, null);
+            await serverViewModel.SetupSeverAsync(Servers[0]);
         }
 
-        private async void AlertMessageViewModel_RetryAsync(object sender, EventArgs e)
+        private async void testAsync(ServerInfo ser)
         {
-            await DoSync();
+            if(Servers.Count == 0)
+            {
+                Servers.Add(ser);                
+            }
+            else
+            {
+                Servers[0] = ser;
+            }
+            databaseService.UpdateServer(ser);
+            await SetupServerAsync();
+            ServerViewModels.Add(this.serverViewModel);
+            await Router.Navigate.Execute(serverViewModel);
         }
 
-        private async Task DoSync()
+        private async Task GetServerAsync()
         {
-            try
+            await NavigateToServerAsync();
+            var currentServer = GetServerFromDb();
+            if (currentServer == null)
             {
-                if (firstSync)
-                {
-                    await syncService.IncrementalSyncAsync();
-                    firstSync = false;
-                }
-                syncService.InitWebsocket();
+                GetServerFromUser();
             }
-            catch (SyncFailureException excp)
+            else
             {
-                Console.WriteLine("SyncFailure");
-                //_logger.Error(excp, "Application Sync Failed");
-            }
-            catch (Exception excep)
-            {
-                Console.WriteLine("Error!");
-                //_logger.Error(excep, "Error!");
+                Servers.Add(currentServer);
+                await SetupServerAsync();
+                ServerViewModels.Add(this.serverViewModel);
             }
         }
 
-        private void SyncService_OnMessageRecieved(object sender, int e)
+        private ServerInfo GetServerFromDb()
         {
-            UpdateMessageDisplayAsync();
+            return databaseService.GetServer();
         }
 
-        private async Task UpdateMessageDisplayAsync()
+        private void GetServerFromUser()
         {
-            if(SelectedItem != null)
-            {
-                var res = await syncService.GetMessagesPerAppAsync(SelectedItem.id);
-                res.Reverse();
-                MessageModels = new ObservableCollection<MessageModel>(res);
-            }
+            settingsViewModel.SetupNewSettings();
+            Router.Navigate.Execute(SettingsViewModel);
+        }
+
+        public void SetTheme()
+        {
+            ThemeService.SetSystemTheme();
         }
 
         public async void Initialize(object sender, object parameter)
         {
-            await SetupSeverAsync();
+            //SetTheme();
+            await GetServerAsync();
         }
 
-        private async Task SetupSeverAsync()
+        private async Task NavigateToServerAsync()
         {
-            var server = await GetServerInfo();
-            await ConfigureGotify(server);
-            Applications = await GetApplicationsAsync();
+            await Router.Navigate.Execute(serverViewModel);
         }
 
-        private async Task ConfigureGotify(ServerInfo server)
+        public void NavigateToSettings()
         {
-            syncService.Configure(server.Url, server.Port, server.Username, server.Password, server.Path, server.Protocol);
-        }
-
-        private async Task<ServerInfo> GetServerInfo()
-        {
-            var server = databaseService.GetServer();
-
-            if (server == null)
-            {
-                return await AddServerViewModel.ShowAsync();
-            }
-
-            return server;
-        }
-
-        private async Task<ObservableCollection<ApplicationModel>> GetApplicationsAsync()
-        {
-            try 
-            { 
-                BusyViewModel.Show();
-                await DoSync();
-                return new ObservableCollection<ApplicationModel>(await syncService.GetApplicationsAsync());
-            }
-            catch (Exception e)
-            {
-                return new ObservableCollection<ApplicationModel>();
-            }
-            finally
-            {
-                BusyViewModel.Close();
-            }
-        }
-
-        public async Task LogoutAsync()
-        {
-            var userResult = await Dialog.ShowDialogAsync(ButtonEnum.YesNo, "LogOut", "Are you sure you want to logout from the server!", Icon.Warning);
-            if(userResult == ButtonResult.Yes)
-            {
-                databaseService.ResetDB();
-                Applications.Clear();
-                MessageModels.Clear();
-                
-                firstSync = true;
-
-                await SetupSeverAsync();
-            }
+            SelectedServer = null;
+            SettingsViewModel.SetupSettings(Servers[0]);
+            Router.Navigate.Execute(SettingsViewModel);
         }
     }
 }

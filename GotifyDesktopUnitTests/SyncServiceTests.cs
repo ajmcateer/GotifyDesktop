@@ -32,9 +32,9 @@ namespace GotifyDesktopUnitTests
             var mockGotifyServiceFactory = new Mock<IGotifyServiceFactory>();
             mockGotifyServiceFactory.Setup(x => x.CreateNewGotifyService(mockLogger.Object)).Returns(mockGotifyService.Object);
 
-            SyncService syncService = new SyncService(mockDatabaseService.Object, mockGotifyServiceFactory.Object, mockLogger.Object);
+            //SyncService syncService = new SyncService(mockDatabaseService.Object, mockGotifyServiceFactory.Object, mockLogger.Object);
 
-            await syncService.IncrementalSyncAsync();
+            //await syncService.IncrementalSyncAsync();
 
             //Action act = () => { databaseService.InsertApplications(dbApps); };
 

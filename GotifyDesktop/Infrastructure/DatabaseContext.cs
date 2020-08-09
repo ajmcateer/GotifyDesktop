@@ -12,6 +12,7 @@ namespace GotifyDesktop.Infrastructure
         public DbSet<ApplicationModel> Applications { get; set; }
         public DbSet<MessageModel> Messages { get; set; }
         public DbSet<ServerInfo> Server { get; set; }
+        public DbSet<SettingsModel> Settings { get; set; }
 
         public DatabaseContext(DbContextOptionsBuilder<DbContext> options) : base(options.Options) { }
     }
