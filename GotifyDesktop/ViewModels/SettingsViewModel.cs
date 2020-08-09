@@ -64,13 +64,17 @@ namespace GotifyDesktop.ViewModels
 
         public void SetupSettings(ServerInfo serverInfo)
         {
-            addServerViewModel.SetServer(serverInfo);
+            addServerViewModel.SetServerInfo(serverInfo);
+        }
+
+        public void SetupNewSettings()
+        {
+            addServerViewModel.SetNewServer();
         }
 
         public async Task Apply()
         {
             NewServerInfo = AddServerViewModel.Save();
-            //var options = OptionsViewModel.Save();
 
             databaseService.InsertServer(newServerInfo);
         }
@@ -78,7 +82,6 @@ namespace GotifyDesktop.ViewModels
         public async Task Save()
         {
             NewServerInfo = AddServerViewModel.Save();
-            //var options = OptionsViewModel.Save();
 
             databaseService.InsertServer(newServerInfo);
             Cancel();

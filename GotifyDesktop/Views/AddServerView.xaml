@@ -141,13 +141,19 @@
                   Grid.ColumnSpan="2"
                   Margin="5"
                   Command="{Binding CheckConnection}"
-                  ToolTip.Tip="Test Connection"/>
+                  ToolTip.Tip="Test Connection"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  HorizontalContentAlignment="Center"/>
           <Button Content="Save"
                   Grid.Column="0"
                   Grid.Row="7" 
                   Margin="5"
-                  Command="{Binding CheckConnection}"
-                  ToolTip.Tip="Test Connection"/>
+                  Command="{Binding SaveNew}"
+                  ToolTip.Tip="Save Settings"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  HorizontalContentAlignment="Center"/>
         </Grid>
       </Grid>
     </Grid>

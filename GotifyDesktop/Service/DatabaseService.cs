@@ -165,7 +165,7 @@ namespace GotifyDesktop.Service
                     {
                         _logger.Information($"Inserting {message.id}");
                         databaseContext.Messages.Add(message);
-                        databaseContext.SaveChanges();
+                        
                         _logger.Debug("Message Saved");
                     }
                 }
@@ -211,6 +211,20 @@ namespace GotifyDesktop.Service
             using (var databaseContext = databaseContextFactory.CreateContext())
             {
                 return databaseContext.Server.FirstOrDefault();
+            }
+        }
+
+        public void UpdateServer(ServerInfo serverInfo)
+        {
+            using (var databaseContext = databaseContextFactory.CreateContext())
+            {
+                var servers = databaseContext.Server;
+                foreach(var server in servers)
+                {
+                    databaseContext.Server.Remove(server);
+                }
+                databaseContext.SaveChanges();
+                InsertServer(serverInfo);
             }
         }
     }

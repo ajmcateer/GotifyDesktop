@@ -1,4 +1,5 @@
-﻿using GotifyDesktop.Exceptions;
+﻿using Avalonia.Controls;
+using GotifyDesktop.Exceptions;
 using GotifyDesktop.Interfaces;
 using GotifyDesktop.Models;
 using GotifyDesktop.Service;
@@ -22,6 +23,7 @@ namespace GotifyDesktop.ViewModels
         public IScreen HostScreen { get; }
         ObservableCollection<ExtendedApplicationModel> applications;
         ExtendedApplicationModel selectedApplication;
+        ISelectionModel selectedObject;
         ObservableCollection<MessageModel> messageModels;
 
         BusyViewModel busyViewModel;
@@ -41,10 +43,19 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref messageModels, value);
         }
 
+        public ISelectionModel Selection
+        {
+            get => selectedObject;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref selectedObject, value);
+            }
+        }
+
         public ExtendedApplicationModel SelectedItem
         {
             get => selectedApplication;
-            private set
+            set
             {
                 this.RaiseAndSetIfChanged(ref selectedApplication, value);
                 UpdateMessageDisplayAsync();
@@ -78,7 +89,6 @@ namespace GotifyDesktop.ViewModels
             this.syncService = syncService;
 
             AlertMessageViewModel = new AlertMessageViewModel();
-
             syncService.ConnectionState += SyncService_ConnectionState;
             syncService.OnMessageRecieved += SyncService_OnMessageRecieved;
             AlertMessageViewModel.Retry += AlertMessageViewModel_RetryAsync;
@@ -87,9 +97,9 @@ namespace GotifyDesktop.ViewModels
             applications = new ObservableCollection<ExtendedApplicationModel>();
         }
 
-        private void SyncService_OnMessageRecieved(object sender, int e)
+        private async void SyncService_OnMessageRecieved(object sender, int e)
         {
-            UpdateMessageDisplayAsync();
+            await UpdateMessageDisplayAsync();
         }
 
         private void SyncService_ConnectionState(object sender, ConnectionStatus e)
@@ -109,7 +119,6 @@ namespace GotifyDesktop.ViewModels
             if (SelectedItem != null)
             {
                 var res = await syncService.GetMessagesPerAppAsync(SelectedItem.id);
-                res.Reverse();
                 MessageModels = new ObservableCollection<MessageModel>(res);
             }
         }
@@ -130,7 +139,7 @@ namespace GotifyDesktop.ViewModels
         {
             try
             {
-                syncService.InitWebsocket();
+                //syncService.InitWebsocket();
             }
             catch (SyncFailureException excp)
             {
@@ -168,6 +177,11 @@ namespace GotifyDesktop.ViewModels
             {
                 BusyViewModel.Close();
             }
+        }
+
+        public void Apply(object parameter)
+        {
+
         }
 
         public void ShowSettings()

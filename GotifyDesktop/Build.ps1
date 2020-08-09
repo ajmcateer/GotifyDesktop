@@ -13,9 +13,9 @@ Remove-Item $releaseFolder -Recurse -Force
 
 Set-Location -Path $path
 
-dotnet publish -f netcoreapp3.0 -r win-x64 -c Release /p:PublishSingleFile=true
-dotnet publish -f netcoreapp3.0 -r linux-x64 -c Release
-dotnet publish -f netcoreapp3.0 -r osx-x64 -c Release
+dotnet publish -f netcoreapp3.1 -r win-x64 -c Release /p:PublishSingleFile=true
+dotnet publish -f netcoreapp3.1 -r linux-x64 -c Release
+dotnet publish -f netcoreapp3.1 -r osx-x64 -c Release
 
 if (!(Get-Module "Microsoft.PowerShell.Archive")) {
     Write-Output "Microsoft.PowerShell.Archive not installed please install and rerun the script"

@@ -20,7 +20,8 @@ namespace GotifyDesktop.ViewModels
     {
         TaskCompletionSource<ServerInfo> taskCompletionSource;
         ObservableCollection<string> protocols;
-        ServerInfo serverInfo;
+        private ServerInfo updatedServer;
+        private ServerInfo oldServer;
 
         private bool isVisible;
         private bool isSaveEnabled;
@@ -31,6 +32,12 @@ namespace GotifyDesktop.ViewModels
         private string password;
         private string clientname;
         private string selectedProtocol;
+
+        public ServerInfo UpdatedServer
+        {
+            get => updatedServer;
+            set => this.RaiseAndSetIfChanged(ref updatedServer, value);
+        }
 
         public string SelectedProtocol
         {
@@ -110,38 +117,13 @@ namespace GotifyDesktop.ViewModels
         public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger, ServerInfo serverInfo) 
             : this(gotifyServiceFactory, logger)
         {
-            this.serverInfo = serverInfo;
-            Username = serverInfo.Username;
-            Password = serverInfo.Password;
-            Path = serverInfo.Path;
-            Port = serverInfo.Port.ToString();
-            Url = serverInfo.Url;
-            SelectedProtocol = serverInfo.Protocol;
-        }
-
-        private void ResetView()
-        {
-            Path = "/";
-            IsSaveEnabled = false;
-            ClientName = GenerateClientName();
-            SelectedProtocol = "Http";
-            Url = String.Empty;
-            Port = String.Empty;
-            Username = String.Empty;
-            Password = String.Empty;
-        }
-
-        public void ConfigureView(ServerInfo serverInfo)
-
-        {
-            this.serverInfo = serverInfo;
-            ClientName = serverInfo.ClientName;
-            Username = serverInfo.Username;
-            Password = serverInfo.Password;
-            Path = serverInfo.Path;
-            Port = serverInfo.Port.ToString();
-            Url = serverInfo.Url;
-            SelectedProtocol = serverInfo.Protocol;
+            this.oldServer = serverInfo;
+            Username = oldServer.Username;
+            Password = oldServer.Password;
+            Path = oldServer.Path;
+            Port = oldServer.Port.ToString();
+            Url = oldServer.Url;
+            SelectedProtocol = oldServer.Protocol;
         }
 
         private string GenerateClientName()
@@ -166,7 +148,7 @@ namespace GotifyDesktop.ViewModels
                 var isConnGood = await gotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
                 if (isConnGood)
                 {
-                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Info);
+                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Plus);
                     IsSaveEnabled = true;
                 }
                 else
@@ -212,7 +194,13 @@ namespace GotifyDesktop.ViewModels
             };
         }
 
-        public void SetServer(ServerInfo serverInfo)
+        public void SaveNew()
+        {
+            var tempServer = new ServerInfo(0, Url, int.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "");
+            UpdatedServer = tempServer;
+        }
+
+        public void SetServerInfo(ServerInfo serverInfo)
         {
             this.ClientName = serverInfo.ClientName;
             this.Password = serverInfo.Password;
@@ -221,6 +209,18 @@ namespace GotifyDesktop.ViewModels
             this.SelectedProtocol = serverInfo.Protocol;
             this.Url = serverInfo.Url;
             this.Username = serverInfo.Username;
+        }
+
+        public void SetNewServer()
+        {
+            Path = "/";
+            IsSaveEnabled = false;
+            ClientName = GenerateClientName();
+            SelectedProtocol = "Http";
+            Url = String.Empty;
+            Port = String.Empty;
+            Username = String.Empty;
+            Password = String.Empty;
         }
     }
 }

@@ -7,7 +7,9 @@ namespace GotifyDesktop.Interfaces
 {
     public interface IServerPageInterface
     {
+        ServerInfo UpdatedServer {get;set;}
         public ServerInfo Save();
-        public void SetServer(ServerInfo serverInfo);
+        public void SetServerInfo(ServerInfo serverInfo);
+        public void SetNewServer();
     }
 }

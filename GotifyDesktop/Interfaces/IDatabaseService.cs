@@ -20,5 +20,6 @@ namespace GotifyDesktop.Service
         void InsertMessages(List<MessageModel> messages);
         void InsertServer(ServerInfo serverInfo);
         void ResetDB();
+        void UpdateServer(ServerInfo serverInfo);
     }
 }

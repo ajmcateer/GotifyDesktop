@@ -11,8 +11,6 @@ namespace GotifyDesktop.Service
 {
     class NoSyncService : AbstractSyncService
     {
-
-
         public NoSyncService(IGotifyServiceFactory gotifyServiceFactory, ILogger logger) : base(gotifyServiceFactory, logger)
         {
 
