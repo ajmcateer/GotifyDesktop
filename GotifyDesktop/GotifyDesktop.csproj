@@ -34,10 +34,6 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Native\MacOS\" />
-    <Folder Include="Native\Windows\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\gotifySharp\gotifySharp\gotifySharp.csproj" />
   </ItemGroup>
 </Project>

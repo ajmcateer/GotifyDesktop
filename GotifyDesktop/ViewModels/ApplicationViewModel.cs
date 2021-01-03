@@ -18,7 +18,6 @@ namespace GotifyDesktop.ViewModels
         private ApplicationModel application;
         ObservableCollection<MessageModel> messageModels;
         ISyncService syncService;
-        IDatabaseService databaseService;
 
         public ObservableCollection<MessageModel> MessageModels
         {
@@ -26,11 +25,10 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref messageModels, value);
         }
 
-        public ApplicationViewModela(ApplicationModel application, ISyncService syncService, IDatabaseService databaseService)
+        public ApplicationViewModela(ApplicationModel application, ISyncService syncService)
         {
             MessageModels = new ObservableCollection<MessageModel>();
             this.syncService = syncService;
-            this.databaseService = databaseService;
 
             this.application = application;
 

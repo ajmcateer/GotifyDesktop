@@ -20,8 +20,8 @@ namespace GotifyDesktopUnitTests
             var Apps = Helper.GenerateApplicationList(3);
 
             var mockLogger = new Mock<ILogger>();
-            var mockDatabaseService = new Mock<IDatabaseService>();
-            mockDatabaseService.Setup(x => x.GetApplications()).Returns(Apps);
+            //var mockDatabaseService = new Mock<IDatabaseService>();
+            //mockDatabaseService.Setup(x => x.GetApplications()).Returns(Apps);
 
             var mockGotifyService = new Mock<IGotifyService>();
             //mockGotifyService.Setup<Task<IList<ApplicationModel>>>(x => x.GetApplications()).ReturnsAsync(Task.FromResult<IList<ApplicationModel>>(Apps));
