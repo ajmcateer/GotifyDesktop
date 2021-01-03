@@ -96,17 +96,5 @@ namespace GotifyDesktopUnitTests
                 .Select(x => pool[rand.Next(0, pool.Length)]);
             return new string(chars.ToArray());
         }
-
-        public static DatabaseService BuildDbService()
-        {
-            DbContextOptionsBuilder<DbContext> options = new DbContextOptionsBuilder<DbContext>()
-                .UseInMemoryDatabase(databaseName: "Test");
-
-            DatabaseContextFactory databaseContextFactory = new DatabaseContextFactory(options);
-
-            var loggerService = new Mock<ILogger>();
-
-            return new DatabaseService(databaseContextFactory, loggerService.Object);
-        }
     }
 }
