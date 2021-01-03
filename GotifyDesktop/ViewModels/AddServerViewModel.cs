@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class AddServerViewModel : ViewModelBase, IServerPageInterface
+    public class AddServerViewModel : ViewModelBase
     {
         TaskCompletionSource<ServerInfo> taskCompletionSource;
         ObservableCollection<string> protocols;
@@ -104,13 +104,13 @@ namespace GotifyDesktop.ViewModels
         //declare event of type delegate
         public event SaveServer saveServerEvent;
 
-        IGotifyServiceFactory gotifyServiceFactory;
-        ILogger logger;
+        IGotifyServiceFactory _gotifyServiceFactory;
+        ILogger _logger;
 
         public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger)
         {
-            this.gotifyServiceFactory = gotifyServiceFactory;
-            this.logger = logger;
+            _gotifyServiceFactory = gotifyServiceFactory;
+            _logger = logger;
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
         }
 
@@ -132,17 +132,17 @@ namespace GotifyDesktop.ViewModels
             return "GotifyDesktop-" + epoch.Substring(epoch.Length - 8);
         }
 
-        public void Save()
-        {
-            var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "Gotify Server");
+        //public void Save()
+        //{
+        //    var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "Gotify Server");
 
-            taskCompletionSource.SetResult(serverInfo);
-            //saveServerEvent?.Invoke();
-        }
+        //    taskCompletionSource.SetResult(serverInfo);
+        //    saveServerEvent?.Invoke();
+        //}
 
         public async Task CheckConnection()
         {
-            IGotifyService gotifyService = gotifyServiceFactory.CreateNewGotifyService(logger);
+            IGotifyService gotifyService = _gotifyServiceFactory.CreateNewGotifyService(Save(), _logger);
             try
             {
                 var isConnGood = await gotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
@@ -157,30 +157,14 @@ namespace GotifyDesktop.ViewModels
                     IsSaveEnabled = false;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Failure", "Server is not reachable", Icon.Error);
                 IsSaveEnabled = false;
             }
         }
 
-        Dictionary<string, string> SaveTest()
-        {
-            Dictionary<string, string> properties = new Dictionary<string, string>();
-
-            var t = typeof(AddServerViewModel);
-            foreach (var prop in t.GetProperties())
-            {
-                if (prop.PropertyType == typeof(string))
-                {
-                    properties.Add(prop.Name, (string)prop.GetValue(this));
-                }
-            }
-
-            return properties;
-        }
-
-        ServerInfo IServerPageInterface.Save()
+        ServerInfo Save()
         {
             return new ServerInfo()
             {
@@ -198,6 +182,8 @@ namespace GotifyDesktop.ViewModels
         {
             var tempServer = new ServerInfo(0, Url, int.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "");
             UpdatedServer = tempServer;
+
+            //saveServerEvent?.Invoke();
         }
 
         public void SetServerInfo(ServerInfo serverInfo)

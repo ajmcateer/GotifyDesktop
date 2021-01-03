@@ -11,15 +11,23 @@
       <RowDefinition Height="1*"/>
       <RowDefinition Height="32"/>
     </Grid.RowDefinitions>
-    <TextBlock Grid.Row="0" 
-               Text="Settings"
-               FontSize="25"/>
-    <TabControl Grid.Row="1">
+    <StackPanel Orientation="Horizontal">
+      <Button Command="{Binding Back}"
+              Background="Transparent"
+              Content="---" />
+      <TextBlock Grid.Row="0"
+           Text="Settings"
+           VerticalAlignment="Center"
+           FontSize="25"/>
+    </StackPanel>
+
+    <TabControl Grid.Row="1"
+                TabStripPlacement="Left">
       <TabItem Header="Servers" Width="150">
           <local:AddServerView Margin="10"
             DataContext="{Binding AddServerViewModel}"/>
       </TabItem>
-      <TabItem Header="Options" IsVisible="False">
+      <TabItem Header="Options">
         <local:OptionsView DataContext="{Binding OptionsViewModel}"/>
       </TabItem>
     </TabControl>

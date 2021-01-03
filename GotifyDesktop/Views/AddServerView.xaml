@@ -92,7 +92,8 @@
                   Margin="5"
                   Items="{Binding Protocols}"
                   SelectedItem="{Binding SelectedProtocol}"
-                  ToolTip.Tip="Http Protocol"/>
+                  ToolTip.Tip="Http Protocol">
+        </DropDown>
         <TextBox Margin="5"
                   Grid.Column="1"
                   Grid.Row="2"

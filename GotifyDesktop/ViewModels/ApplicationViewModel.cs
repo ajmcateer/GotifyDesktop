@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class ApplicationViewModel : ViewModelBase
+    public class ApplicationViewModela : ViewModelBase
     {
         private ApplicationModel application;
         ObservableCollection<MessageModel> messageModels;
@@ -26,7 +26,7 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref messageModels, value);
         }
 
-        public ApplicationViewModel(ApplicationModel application, ISyncService syncService, IDatabaseService databaseService)
+        public ApplicationViewModela(ApplicationModel application, ISyncService syncService, IDatabaseService databaseService)
         {
             MessageModels = new ObservableCollection<MessageModel>();
             this.syncService = syncService;
@@ -37,11 +37,11 @@ namespace GotifyDesktop.ViewModels
             syncService.OnMessageRecieved += SyncService_OnMessageRecieved;
         }
 
-        private void SyncService_OnMessageRecieved(object sender, int e)
+        private void SyncService_OnMessageRecieved(object sender, MessageModel e)
         {
-            var res = databaseService.GetMessagesForApplication(e);
-            res.Reverse();
-            MessageModels = new ObservableCollection<MessageModel>(res);
+            //var res = databaseService.GetMessagesForApplication(e);
+            //res.Reverse();
+            //MessageModels = new ObservableCollection<MessageModel>(res);
         }
     }
 }

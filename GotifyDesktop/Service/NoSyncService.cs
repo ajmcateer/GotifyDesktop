@@ -11,9 +11,10 @@ namespace GotifyDesktop.Service
 {
     class NoSyncService : AbstractSyncService
     {
-        public NoSyncService(IGotifyServiceFactory gotifyServiceFactory, ILogger logger) : base(gotifyServiceFactory, logger)
+        public NoSyncService(GotifyService gotifyService, ILogger logger) : base(gotifyService, logger)
         {
-
+            //InitWebsocket();
+            _gotifyService.OnMessage += GotifyService_OnMessage;
         }
 
         public override async Task<List<ExtendedApplicationModel>> GetApplicationsAsync()

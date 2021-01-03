@@ -7,9 +7,13 @@
              xmlns:reactiveUi="http://reactiveui.net"> 
   <Grid Width="400"
         Height="400">
-  <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+    <ToggleSwitch OffContent="Dark Mode"
+                  OnContent="Light Mode"
+                  Command="{Binding ToggleButton}"
+                  CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"/>
+  <!--<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
     <TextBlock Height="35" Text="Theme" Margin="0,15,0,0" VerticalAlignment="Center"/>
     <DropDown Margin="5" Height="25" Width="100" Items="{Binding Themes}" SelectedItem="{Binding SelectedTheme}"/>
-  </StackPanel>
+  </StackPanel>-->
   </Grid>
 </UserControl>

@@ -4,6 +4,8 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ExtendedToolkit;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
 using GotifyDesktop.Infrastructure;
 using GotifyDesktop.Interfaces;
 using GotifyDesktop.Service;
@@ -16,11 +18,68 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Splat;
+using System;
 
 namespace GotifyDesktop
 {
     public class App : Application
     {
+        public static Styles FluentDark = new Styles
+        {
+            new StyleInclude(new Uri("avares://ControlCatalog/Styles"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/FluentDark.xaml")
+            },
+        };
+
+        public static Styles FluentLight = new Styles
+        {
+            new StyleInclude(new Uri("avares://ControlCatalog/Styles"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/FluentLight.xaml")
+            },
+        };
+
+        public static Styles DefaultLight = new Styles
+        {
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/Base.xaml")
+            },
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/BaseLight.xaml")
+            },
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Default/Accents/BaseLight.xaml")
+            },
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Default/DefaultTheme.xaml")
+            },
+        };
+
+        public static Styles DefaultDark = new Styles
+        {
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/Base.xaml")
+            },
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Fluent/Accents/BaseDark.xaml")
+            },
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Default/Accents/BaseDark.xaml")
+            },
+            new StyleInclude(new Uri("resm:Styles?assembly=ControlCatalog"))
+            {
+                Source = new Uri("avares://Avalonia.Themes.Default/DefaultTheme.xaml")
+            },
+        };
+
         public static LoggingLevelSwitch loggingLevelSwitch;
 
         public static MainWindowViewModel mainWindowViewModel;
@@ -65,26 +124,20 @@ namespace GotifyDesktop
 
             // Register individual components
 
-            builder.Register(c =>
-            {
-                DbContextOptionsBuilder<DbContext> options = new DbContextOptionsBuilder<DbContext>();
-                options.UseSqlite("Data Source=gotifyDesktop.db");
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
-                return options;
-            }).AsSelf();
-
             //builder.RegisterInstance(options).As<DbContextOptionsBuilder<DbContext>>();
             builder.RegisterLogger();
             builder.RegisterType<MainWindowViewModel>();
             builder.RegisterType<AddServerViewModel>();
             builder.RegisterType<OptionsViewModel>();
-            builder.RegisterType<SettingsViewModel>();
-            builder.RegisterType<ServerViewModel>();
-            builder.RegisterType<DatabaseContextFactory>();
-            builder.RegisterType<DatabaseService>().As<IDatabaseService>();
+            builder.RegisterType<ServerViewModelFactory>();
+            builder.RegisterType<SettingsService>();
+            builder.RegisterType<ViewModelActivator>();
+            //builder.RegisterType<DatabaseContextFactory>();
+            //builder.RegisterType<DatabaseService>().As<IDatabaseService>();
             builder.RegisterType<GotifyServiceFactory>().As<IGotifyServiceFactory>();
-            builder.RegisterType<GotifySharp>();
+            builder.RegisterType<GotifyServiceFactory>();
+            builder.RegisterType<SettingsViewModel>();
+            //builder.RegisterType<GotifySharp>();
             builder.RegisterType<NoSyncService>().As<ISyncService>();
             builder.RegisterType<BusyViewModel>();
             builder.RegisterType<AlertMessageViewModel>();

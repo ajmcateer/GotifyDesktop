@@ -1,24 +1,18 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Markup.Xaml;
-using Avalonia.ReactiveUI;
-using GotifyDesktop.ViewModels;
-using ReactiveUI;
 using Avalonia.Styling;
 using System;
 using Avalonia.Platform;
+using Avalonia;
 
-namespace GotifyDesktop.Views
+namespace GotifyDesktop.Infrastructure
 {
-    public class MainWindow : ReactiveWindow<MainWindowViewModel>, IStyleable
+    public class FluentWindow : Window, IStyleable
     {
         Type IStyleable.StyleKey => typeof(Window);
 
-        public MainWindow()
+        public FluentWindow()
         {
-            this.WhenActivated(disposables => { /* Handle view activation etc. */ });
-
             ExtendClientAreaToDecorationsHint = true;
             ExtendClientAreaTitleBarHeightHint = -1;
 
@@ -40,9 +34,6 @@ namespace GotifyDesktop.Views
                         TransparencyLevelHint = WindowTransparencyLevel.Blur;
                     }
                 });
-
-            this.WhenActivated(disposables => { });
-            AvaloniaXamlLoader.Load(this);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)

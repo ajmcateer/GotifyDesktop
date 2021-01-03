@@ -27,10 +27,10 @@ namespace GotifyDesktopUnitTests
             //mockGotifyService.Setup<Task<IList<ApplicationModel>>>(x => x.GetApplications()).ReturnsAsync(Task.FromResult<IList<ApplicationModel>>(Apps));
             mockGotifyService.Setup(x => x.GetApplications()).ReturnsAsync(Apps);
             mockGotifyService.SetupAdd(m => m.OnMessage += It.IsAny<EventHandler<MessageModel>>());
-            mockGotifyService.SetupAdd(m => m.ConnectionState += It.IsAny<EventHandler<ConnectionStatus>>());
+            //mockGotifyService.SetupAdd(m => m.ConnectionState += It.IsAny<EventHandler<ConnectionStatus>>());
 
             var mockGotifyServiceFactory = new Mock<IGotifyServiceFactory>();
-            mockGotifyServiceFactory.Setup(x => x.CreateNewGotifyService(mockLogger.Object)).Returns(mockGotifyService.Object);
+            //mockGotifyServiceFactory.Setup(x => x.CreateNewGotifyService(mockLogger.Object)).Returns(mockGotifyService.Object);
 
             //SyncService syncService = new SyncService(mockDatabaseService.Object, mockGotifyServiceFactory.Object, mockLogger.Object);
 
