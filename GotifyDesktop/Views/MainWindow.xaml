@@ -26,7 +26,7 @@
     </i:Interaction.Behaviors>-->
 
   <FluentWindow.Styles>
-    <Style Selector="ListBoxItem">
+    <!--<Style Selector="ListBoxItem">
       <Setter Property="VerticalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -34,13 +34,20 @@
       <Setter Property="Margin" Value="0"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Padding" Value="0"/>
-    </Style>
+    </Style>-->
     <Style Selector="TitleBar:fullscreen">
       <Setter Property="Background" Value="#7f000000" />
     </Style>
   </FluentWindow.Styles>
  
   <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="30"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
     <ExperimentalAcrylicBorder IsHitTestVisible="False">
       <ExperimentalAcrylicBorder.Material>
         <ExperimentalAcrylicMaterial TintColor="#161616" MaterialOpacity="0.85" TintOpacity="1" />
@@ -148,7 +155,8 @@
       </Grid>
     </SplitView>-->
     <reactiveUi:RoutedViewHost
-      Margin="0,30,0,0"
+      Margin="0,0,0,0"
+      Grid.Row="1"
       Router="{Binding Router}">
       <reactiveUi:RoutedViewHost.DefaultContent>
         <TextBlock Text="Default Content" />

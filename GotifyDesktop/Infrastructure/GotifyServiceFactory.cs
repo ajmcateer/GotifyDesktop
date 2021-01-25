@@ -9,9 +9,9 @@ namespace GotifyDesktop.Infrastructure
 {
     public class GotifyServiceFactory : IGotifyServiceFactory
     {
-        public IGotifyService CreateNewGotifyService(ServerInfo serverInfo, ILogger ilogger)
+        public IGotifyService CreateNewGotifyService(ServerInfo serverInfo)
         {
-            return new GotifyService(serverInfo, ilogger);
+            return new GotifyService(serverInfo);
         }
     }
 }

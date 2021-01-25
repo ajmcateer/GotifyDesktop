@@ -41,12 +41,12 @@ namespace GotifyDesktopUnitTests
         public static MessageModel GenerateMessage(int appId = 1)
         {
             MessageModel messageModel = new MessageModel();
-            messageModel.appid = appId;
-            messageModel.date = DateTime.Now;
-            messageModel.id = GetId();
-            messageModel.message = RandomString(50);
-            messageModel.priority = 2;
-            messageModel.title = RandomString(10);
+            messageModel.Appid = appId;
+            messageModel.Date = DateTime.Now;
+            messageModel.Id = GetId();
+            messageModel.Message = RandomString(50);
+            messageModel.Priority = 2;
+            messageModel.Title = RandomString(10);
 
             return messageModel;
         }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace GotifyDesktop.Models
 {
-    public class ExtendedApplicationModel : ReactiveObject
+    public class RxApplicationModel : ReactiveObject
     {
         int _id;
         string _token;
@@ -52,7 +52,7 @@ namespace GotifyDesktop.Models
             set => this.RaiseAndSetIfChanged(ref _image, value);
         }        
 
-        public ExtendedApplicationModel(ApplicationModel applicationModel)
+        public RxApplicationModel(ApplicationModel applicationModel)
         {
             Description = applicationModel.description;
             HasAlert = false;

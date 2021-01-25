@@ -9,29 +9,19 @@ using System;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase, ICustomScreen, IActivatableViewModel
+    public class MainWindowViewModel : ViewModelBase, IActivatableViewModel, IScreen
     {
-        ILogger logger;
         public ViewModelActivator Activator { get; }
 
         ServerViewModelFactory _serverViewModelFactory;
-        SettingsViewModel _settingsViewModel;
-        public RoutingState Router { get; } = new RoutingState();
+        public RoutingState Router { get; } 
 
-        public MainWindowViewModel(ServerViewModelFactory serverViewModelFactory, 
-            SettingsViewModel settingsViewModel, 
-            ViewModelActivator viewModelActivator, 
-            ILogger logger)
+        public MainWindowViewModel(ServerViewModelFactory serverViewModelFactory,
+            RoutingState routingState)
         {
             _serverViewModelFactory = serverViewModelFactory;
-            _settingsViewModel = settingsViewModel;
-
-            Activator = viewModelActivator;
-            this.logger = logger;
-
-            _settingsViewModel.WhenAnyValue(x => x.ServerUpdate)
-                .Where(x => x == true)
-                .Subscribe(async x => await NavigateToServerAsync(), y => _settingsViewModel.ServerUpdate = false);
+            Router = routingState;
+            Activator = new ViewModelActivator();
 
             this.WhenActivated(async (CompositeDisposable disposables) =>
             {
@@ -42,31 +32,10 @@ namespace GotifyDesktop.ViewModels
             });
         }
 
-        private ServerViewModel GenerateNewServerViewModel()
-        {
-            return _serverViewModelFactory.GetNewServerViewModel(_settingsViewModel.GetSettings());
-        }
-
         public async Task OnActivationAsync()
         {
-            if (_settingsViewModel.IsServerConfigured())
-            {
-                await NavigateToServerAsync();
-            }
-            else
-            {
-                await NavigateToSettings();
-            }
-        }
-
-        private async Task NavigateToServerAsync()
-        {
-            await Router.Navigate.Execute(GenerateNewServerViewModel());
-        }
-
-        public async Task NavigateToSettings()
-        {
-            await Router.Navigate.Execute(_settingsViewModel);
+            var serverViewModel =_serverViewModelFactory.GetNewServerViewModel(this as IScreen);
+            await Router.Navigate.Execute(serverViewModel);
         }
     }
 }

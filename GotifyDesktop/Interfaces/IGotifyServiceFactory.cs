@@ -6,6 +6,6 @@ namespace GotifyDesktop.Infrastructure
 {
     public interface IGotifyServiceFactory
     {
-        IGotifyService CreateNewGotifyService(ServerInfo serverInfo, ILogger ilogger);
+        IGotifyService CreateNewGotifyService(ServerInfo serverInfo);
     }
 }

@@ -35,23 +35,18 @@
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="80"/>
+      <RowDefinition Height="30"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="150" MinWidth="150"/>
+      <ColumnDefinition Width="5"/>
       <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="80"/>
     </Grid.ColumnDefinitions>
-    <DockPanel Grid.Column="0"
-               Grid.Row="0"
-               Grid.RowSpan="2"
-               Grid.ColumnSpan="2">
-      <Button Content="Settings"
-              Command="{Binding GoToSettings}"
-              DockPanel.Dock="Bottom"
-              Background="Transparent"
-              MinWidth="150"
-              MaxWidth="300"
-              HorizontalContentAlignment="Center"/>
+      <local:AlertMessageView
+        DataContext="{Binding AlertMessageViewModel}"
+        IsVisible="{Binding IsDisplayVisible, FallbackValue=false}"
+        DockPanel.Dock="Top">
+      </local:AlertMessageView>
       <ListBox
         DockPanel.Dock="Left"
         ScrollViewer.VerticalScrollBarVisibility="Disabled"
@@ -61,20 +56,17 @@
         BorderThickness="0"
         Grid.Row="0"
         Grid.RowSpan="2"
-        Items="{Binding Applications}"
-        MaxWidth="300">
+        Grid.Column="0"
+        Items="{Binding Applications}">
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <Button
-              BorderThickness="0"
-              Height="40"
-              HorizontalAlignment="Stretch"
-              VerticalAlignment="Stretch"
-              VerticalContentAlignment="Stretch"
-              HorizontalContentAlignment="Stretch"
-              IsHitTestVisible="False"
-              Command="{Binding $parent[local:ServerView].DataContext.Apply}"
-              CommandParameter="{Binding #MyTextBlock.Text}">
+            <Button Background="Transparent"
+                    IsHitTestVisible="False"
+                    Height="40"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch">
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="1*"/>
@@ -89,30 +81,36 @@
                   Grid.Column="1"
                   IsVisible="{Binding HasAlert}"
                   HorizontalAlignment="Right"/>
-                <TextBlock
-                  x:Name="MyTextBlock"
-                  Height="30"
-                  Margin="0,5,0,0"
-                  FontSize="20"
-                  Text="{Binding Name}"
-                  Grid.Column="0"
-                  VerticalAlignment="Center"
-                  HorizontalAlignment="Left"/>
+              <TextBlock
+                x:Name="MyTextBlock"
+                Height="30"
+                Margin="0,5,0,0"
+                FontSize="20"
+                Text="{Binding Name}"
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Left"/>
               </Grid>
             </Button>
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
-      
-      <local:AlertMessageView
-        DataContext="{Binding AlertMessageViewModel}"
-        IsVisible="{Binding IsDisplayVisible, FallbackValue=false}"
-        DockPanel.Dock="Top">
-      </local:AlertMessageView>
-      <ScrollViewer Grid.Column="1" Grid.Row="1" DockPanel.Dock="Right">
+      <Button Content="Settings"
+                Command="{Binding ShowSettings}"
+                DockPanel.Dock="Bottom"
+                Background="#2B2B2B"
+                MinWidth="150"
+                BorderThickness="0"
+                Grid.Row="1"
+                Grid.Column="0"
+                HorizontalContentAlignment="Center"/>
+      <GridSplitter Grid.Column="1" 
+                    Grid.RowSpan="2"
+                    Width="2"></GridSplitter>
+      <ScrollViewer Grid.Column="2" 
+                    Grid.Row="0"
+                    Grid.RowSpan="2">
         <ItemsControl
-            Grid.Row="1"
-            Grid.Column="1"
             Items="{Binding MessageModels}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
@@ -125,35 +123,62 @@
                 BorderThickness="2"
                 CornerRadius="3"
                 Padding="4">
-                <DockPanel Margin="5">
+                <Grid MinHeight="80">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="64"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="5"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5"/>
+                  </Grid.RowDefinitions>
                   <Image Source="avares://GotifyDesktop/Assets/defaultapp.png"
+                         Grid.Column="1"
+                         Grid.Row="1"
+                         Grid.RowSpan="2"
                          Height="64"
                          Width="64"
                          DockPanel.Dock="Left">
                   </Image>
                   <TextBlock
-                    DockPanel.Dock="Top"
+                    Grid.Column="2"
+                    Grid.Row="1"
                     Height="32"
                     TextWrapping="Wrap"
-                    FontSize="20"
+                    FontSize="18"
                     Margin="15,0,0,0"
                     HorizontalAlignment="Left"
-                    Text="{Binding title}">
-                  </TextBlock>
+                    VerticalAlignment="Top"
+                    Text="{Binding Title}"/>
                   <TextBlock
+                    Grid.Column="2"
+                    Grid.Row="2"
                     Margin="15,0,0,0"
                     DockPanel.Dock="Bottom"
                     TextWrapping="Wrap"
                     HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
                     FontSize="14"
-                    Text="{Binding message}">
-                  </TextBlock>
-                </DockPanel>
+                    Text="{Binding Message}"/>
+                  <TextBlock
+                    Grid.Column="3"
+                    Grid.Row="1"
+                    Margin="15,0,0,0"
+                    DockPanel.Dock="Right"
+                    TextWrapping="Wrap"
+                    HorizontalAlignment="Left"
+                    FontSize="14"
+                    Text="{Binding DateString}"/>
+                </Grid>
               </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
-    </DockPanel>
   </Grid>
 </UserControl>

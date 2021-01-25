@@ -19,7 +19,7 @@ namespace GotifyDesktop.Comparer
             {
                 return false;
             }
-            return x.id == y.id;
+            return x.Id == y.Id;
         }
 
         public int GetHashCode([DisallowNull] MessageModel obj)
@@ -28,7 +28,7 @@ namespace GotifyDesktop.Comparer
             {
                 return 0;
             }
-            return obj.id.GetHashCode();
+            return obj.Id.GetHashCode();
         }
     }
 }

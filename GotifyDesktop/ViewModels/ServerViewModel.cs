@@ -1,56 +1,54 @@
-﻿using Avalonia.Controls;
-using Avalonia.Controls.Selection;
-using GotifyDesktop.Exceptions;
-using GotifyDesktop.Interfaces;
+﻿using GotifyDesktop.Exceptions;
+using GotifyDesktop.Infrastructure;
 using GotifyDesktop.Models;
 using GotifyDesktop.Service;
 using gotifySharp.Models;
 using ReactiveUI;
-using Splat;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Text;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
+using static gotifySharp.Enums.ConnectionInfo;
 
 namespace GotifyDesktop.ViewModels
 {
     public class ServerViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
     {
         private bool firstActivation = true;
-        ILogger logger;
         public ViewModelActivator Activator { get; }
-        private Dictionary<int, ObservableCollection<MessageModel>> _serverCache;
+
+        private IGotifyServiceFactory _gotifyServiceFactory;
+        private IGotifyService _gotifyService;
+        private Dictionary<int, ObservableCollection<RxMessageModel>> _serverCache;
 
         public IScreen HostScreen { get; }
-        ObservableCollection<ExtendedApplicationModel> applications;
-        ExtendedApplicationModel selectedApplication;
-        ObservableCollection<MessageModel> messageModels;
+        ObservableCollection<RxApplicationModel> applications;
+        RxApplicationModel selectedApplication;
+        ObservableCollection<RxMessageModel> messageModels;
 
-        BusyViewModel busyViewModel;
         AlertMessageViewModel alertMessageViewModel;
+        SettingsViewModel _settingsViewModel;
 
-        ISyncService syncService;
-
-        public ObservableCollection<MessageModel> MessageModels
+        public ObservableCollection<RxMessageModel> MessageModels
         {
             get => messageModels;
             set => this.RaiseAndSetIfChanged(ref messageModels, value);
         }
 
-        public ExtendedApplicationModel SelectedItem
+        public RxApplicationModel SelectedItem
         {
             get => selectedApplication;
             set
             {
                 this.RaiseAndSetIfChanged(ref selectedApplication, value);
-                UpdateMessageDisplayAsync();
+                //UpdateMessageDisplayAsync();
             }
         }
 
-        public ObservableCollection<ExtendedApplicationModel> Applications
+        public ObservableCollection<RxApplicationModel> Applications
         {
             get => applications;
             private set => this.RaiseAndSetIfChanged(ref applications, value);
@@ -62,24 +60,29 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref alertMessageViewModel, value);
         }
 
-        public BusyViewModel BusyViewModel
-        {
-            get => busyViewModel;
-            set => this.RaiseAndSetIfChanged(ref busyViewModel, value);
-        }
-
         public string UrlPathSegment => throw new NotImplementedException();
 
-        public ServerViewModel(ISyncService syncService)
+        public ServerViewModel(IGotifyServiceFactory gotifyServiceFactory,
+            SettingsViewModel settingsViewModel,
+            IScreen screen)
         {
-            HostScreen = Locator.Current.GetService<IScreen>();
-            _serverCache = new Dictionary<int, ObservableCollection<MessageModel>>();
-            BusyViewModel = new BusyViewModel();
-            this.syncService = syncService;
-            Activator = new ViewModelActivator();            
+            _gotifyServiceFactory = gotifyServiceFactory;
+            _serverCache = new Dictionary<int, ObservableCollection<RxMessageModel>>();
+            _settingsViewModel = settingsViewModel;
+            HostScreen = screen;
+            Activator = new ViewModelActivator();
+            AlertMessageViewModel = new AlertMessageViewModel();
 
-            messageModels = new ObservableCollection<MessageModel>();
-            applications = new ObservableCollection<ExtendedApplicationModel>();
+            messageModels = new ObservableCollection<RxMessageModel>();
+            applications = new ObservableCollection<RxApplicationModel>();
+
+            this.WhenAnyValue(value => value.SelectedItem.Changed)
+                .Where(value => value != null)
+                .Subscribe(ValueTask => UpdateMessageDisplay());
+
+            this.WhenAnyValue(value => value._settingsViewModel.ServerUpdate)
+                .Where(value => value == true)
+                .Subscribe(async ValueTask => await ReConfigureAsync(ValueTask));
 
             this.WhenActivated(async (CompositeDisposable disposables) =>
             {
@@ -88,6 +91,12 @@ namespace GotifyDesktop.ViewModels
                     .Create(() => { OnCloseAsync(); })
                     .DisposeWith(disposables);
             });
+        }
+
+        private async Task ReConfigureAsync(bool valueTask)
+        {
+            _gotifyService = _gotifyServiceFactory.CreateNewGotifyService(_settingsViewModel.GetSettings());
+            await DoSync();
         }
 
         private void OnCloseAsync()
@@ -99,71 +108,75 @@ namespace GotifyDesktop.ViewModels
         {
             if (firstActivation)
             {
-                AlertMessageViewModel = new AlertMessageViewModel();
-                syncService.OnMessageRecieved += SyncService_OnMessageRecieved;
-                syncService.WebSocketConnectionState += SyncService_WebSocketConnectionState;
-                AlertMessageViewModel.Retry += AlertMessageViewModel_RetryAsync;
-                syncService.InitWebsocket();
-
-                await DoSync();
-
-                foreach (var app in Applications)
+                if (_settingsViewModel.IsServerConfigured())
                 {
-                    _serverCache[app.Id] = new ObservableCollection<MessageModel>();
+                    _gotifyService = _gotifyServiceFactory.CreateNewGotifyService(_settingsViewModel.GetSettings());
+                    await DoSync();
                 }
-                firstActivation = false;
+                else
+                {
+                    ShowSettings();
+                }
             }
         }
 
-        private void SyncService_WebSocketConnectionState(object sender, ConnectionStatus e)
+        private void _gotifyService_OnReconnect(object sender, WebsocketReconnectStatus e)
         {
-            if (e == ConnectionStatus.Failed)
+            AlertMessageViewModel.IsDisplayVisible = false;
+        }
+
+        private void _gotifyService_OnDisconnect(object sender, WebsocketDisconnectStatus e)
+        {
+            if(e != WebsocketDisconnectStatus.NoMessageReceived)
             {
                 AlertMessageViewModel.IsDisplayVisible = true;
-            }
-            else if (e == ConnectionStatus.Successful)
-            {
-                AlertMessageViewModel.IsDisplayVisible = false;
             }
         }
 
         private void SyncService_OnMessageRecieved(object sender, MessageModel e)
         {
-            if (_serverCache.ContainsKey(e.appid))
+            if (_serverCache.ContainsKey(e.Appid))
             {
-                _serverCache[e.appid].Insert(0, e);
+                if(_serverCache[e.Appid].Count == 1)
+                {
+                    if(_serverCache[e.Appid][0].Id == -1)
+                    {
+                        _serverCache[e.Appid].RemoveAt(0);
+                    }
+                }
+                _serverCache[e.Appid].Insert(0, new RxMessageModel(e));
             }
             if(Applications != null)
             {
-                var app = Applications.Where(x => x.Id == e.appid).FirstOrDefault();
-                if(SelectedItem.Id != app.Id)
+                var app = Applications.Where(x => x.Id == e.Appid).FirstOrDefault();
+                if(SelectedItem != null)
+                {
+                    if(SelectedItem.Id != app.Id)
+                    {
+                        app.HasAlert = true;
+                    }
+                }
+                else
                 {
                     app.HasAlert = true;
                 }
             }
         }
 
-        private async Task UpdateMessageDisplayAsync()
+        private void UpdateMessageDisplay()
         {
             if (!_serverCache.ContainsKey(SelectedItem.Id))
             {
-                _serverCache[SelectedItem.Id] = new ObservableCollection<MessageModel>();
+                _serverCache[SelectedItem.Id] = new ObservableCollection<RxMessageModel>();
+                _serverCache[SelectedItem.Id].Add(new RxMessageModel()
+                {
+                    Title = "Nothing to show",
+                    DateString = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"),
+                    Message = "You haven't gotten any alerts yet",
+                    Id = -1
+                });
                 MessageModels = _serverCache[SelectedItem.Id];
             }
-            //else if (_serverCache[SelectedItem.Id].Count == 0)
-            //{
-            //    try
-            //    {
-            //        var messages = await syncService.GetMessagesPerAppAsync(SelectedItem.Id);
-            //        _serverCache[SelectedItem.Id] = new ObservableCollection<MessageModel>(messages);
-            //        MessageModels = _serverCache[SelectedItem.Id];
-            //    }
-            //    catch(SyncFailureException SyncExp)
-            //    {
-            //        _serverCache[SelectedItem.Id] = new ObservableCollection<MessageModel>();
-            //        MessageModels = _serverCache[SelectedItem.Id];
-            //    }
-            //}
             else
             {
                 SelectedItem.HasAlert = false;
@@ -176,18 +189,34 @@ namespace GotifyDesktop.ViewModels
             await DoSync();
         }
 
-        public async Task GoToSettings()
-        {
-            var Screen = Locator.Current.GetService<ICustomScreen>();
-            await Screen.NavigateToSettings();
-        }
-
         private async Task DoSync()
         {
             try
             {
-                Applications = new ObservableCollection<ExtendedApplicationModel>(await syncService.GetApplicationsAsync());
-                AlertMessageViewModel.IsDisplayVisible = false;
+                _gotifyService.OnDisconnect += _gotifyService_OnDisconnect;
+                _gotifyService.OnMessage += SyncService_OnMessageRecieved;
+                _gotifyService.OnReconnect += _gotifyService_OnReconnect;
+                AlertMessageViewModel.Retry += AlertMessageViewModel_RetryAsync;
+                _gotifyService.InitWebsocket();
+
+                var results = await _gotifyService.GetApplications();
+                if(results != null)
+                {
+                    foreach (var result in results)
+                    {
+                        Applications.Add(new RxApplicationModel(result));
+                        _serverCache[result.id] = new ObservableCollection<RxMessageModel>();
+                        _serverCache[result.id].Add(new RxMessageModel()
+                        {
+                            Title = "Nothing to show",
+                            DateString = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"),
+                            Message = "You haven't gotten any alerts yet",
+                            Id = -1
+                        });
+                    }
+                    AlertMessageViewModel.IsDisplayVisible = false;
+                    firstActivation = false;
+                }
             }
             catch (SyncFailureException excp)
             {
@@ -205,8 +234,7 @@ namespace GotifyDesktop.ViewModels
 
         public void ShowSettings()
         {
-            var HostScreen = Locator.Current.GetService<ICustomScreen>();
-            HostScreen.NavigateToSettings();
+            HostScreen.Router.Navigate.Execute(_settingsViewModel);
         }
     }
 }

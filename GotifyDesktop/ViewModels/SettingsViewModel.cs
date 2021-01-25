@@ -16,12 +16,12 @@ namespace GotifyDesktop.ViewModels
     {
 
         // Reference to IScreen that owns the routable view model.
-        public IScreen HostScreen { get; }
+        public IScreen HostScreen { get; set; }
 
         // Unique identifier for the routable view model.
         public string UrlPathSegment { get; } = Guid.NewGuid().ToString().Substring(0, 5);
         public ServerInfo serverInfo;
-        SettingsService _settingsService;
+        ISettingsService _settingsService;
 
         bool _serverUpdate;
 
@@ -50,17 +50,15 @@ namespace GotifyDesktop.ViewModels
 
         public SettingsViewModel(AddServerViewModel addServerViewModel, 
             OptionsViewModel optionsViewModel,
-            SettingsService settingsService,
-            ViewModelActivator viewModelActivator)
+            ISettingsService settingsService)
         {
-            HostScreen = Locator.Current.GetService<IScreen>();
             AddServerViewModel = addServerViewModel;
             OptionsViewModel = optionsViewModel;
             _settingsService = settingsService;
 
             ServerUpdate = false;
 
-            Activator = viewModelActivator;
+            Activator = new ViewModelActivator();
 
             this.AddServerViewModel.WhenAnyValue(x => x.UpdatedServer)
                 .Where(x => x != null)
@@ -75,11 +73,17 @@ namespace GotifyDesktop.ViewModels
             });
         }
 
+        public SettingsViewModel InitRouting(IScreen screen)
+        {
+            HostScreen = screen;
+            return this;
+        }
+
         private void OnActivation()
         {
             if (_settingsService.IsServerConfigured())
             {
-                AddServerViewModel.SetServerInfo(_settingsService.GetSettings());
+                AddServerViewModel.SetServerInfo(GetSettings());
             }
             else
             {
@@ -87,12 +91,12 @@ namespace GotifyDesktop.ViewModels
             }
         }
 
-        internal ServerInfo GetSettings()
+        public ServerInfo GetSettings()
         {
             return _settingsService.GetSettings();
         }
 
-        internal bool IsServerConfigured()
+        public bool IsServerConfigured()
         {
             return _settingsService.IsServerConfigured();
         }
@@ -105,8 +109,7 @@ namespace GotifyDesktop.ViewModels
 
         public async Task Back()
         {
-            var test = Locator.Current.GetService<ICustomScreen>();
-            await test.Router.NavigateBack.Execute();
+            await HostScreen.Router.NavigateBack.Execute();
         }
     }
 }

@@ -24,13 +24,8 @@ namespace GotifyDesktop.Service
         public event EventHandler<MessageModel> OnMessage;
         public event EventHandler<WebsocketDisconnectStatus> OnDisconnect;
         public event EventHandler<WebsocketReconnectStatus> OnReconnect;
-
-        public GotifyService(ILogger logger)
-        {
-            this._logger = logger;
-        }        
         
-        public GotifyService(ServerInfo serverInfo, ILogger logger) : this(logger)
+        public GotifyService(ServerInfo serverInfo)
         {
             _serverInfo = serverInfo;
             IConfig config = new AppConfig(serverInfo.Username, serverInfo.Password, serverInfo.Url, serverInfo.Port, serverInfo.Protocol, serverInfo.Path);
@@ -40,7 +35,7 @@ namespace GotifyDesktop.Service
             gotifySharp.OnReconnect += GotifySharp_OnReconnect;
         }
 
-        public async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
+        public static async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
         {
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
             GotifySharp gotifySharp = new GotifySharp(config);

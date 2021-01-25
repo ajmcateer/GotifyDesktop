@@ -24,6 +24,8 @@ namespace GotifyDesktop
 {
     public class App : Application
     {
+        public static IContainer Container; 
+
         public static Styles FluentDark = new Styles
         {
             new StyleInclude(new Uri("avares://ControlCatalog/Styles"))
@@ -91,20 +93,18 @@ namespace GotifyDesktop
 
         public override void OnFrameworkInitializationCompleted()
         {
-            var container = BuildContainer();
+            Container = BuildContainer();
 
-            mainWindowViewModel = container.Resolve<MainWindowViewModel>();
+            mainWindowViewModel = Container.Resolve<MainWindowViewModel>();
 
-            Locator.CurrentMutable.RegisterConstant<ICustomScreen>(mainWindowViewModel);
+            Locator.CurrentMutable.RegisterConstant<IScreen>(mainWindowViewModel);
             Locator.CurrentMutable.Register<IViewFor<OptionsViewModel>>(() => new OptionsView());
             Locator.CurrentMutable.Register<IViewFor<SettingsViewModel>>(() => new SettingsView());
             Locator.CurrentMutable.Register<IViewFor<ServerViewModel>>(() => new ServerView());
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow { DataContext = Locator.Current.GetService<ICustomScreen>() };
-                //SkinManager.Instance.EnableSkin(desktop.MainWindow);
-                //ThemeManager.Instance.EnableTheme(desktop.MainWindow);
+                desktop.MainWindow = new MainWindow { DataContext = Locator.Current.GetService<IScreen>() };
             }
 
             base.OnFrameworkInitializationCompleted();
@@ -122,26 +122,24 @@ namespace GotifyDesktop
                 .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
-            // Register individual components
-
-            //builder.RegisterInstance(options).As<DbContextOptionsBuilder<DbContext>>();
+            builder.Register(ctx =>
+            {
+                return new RoutingState();
+            }).As<RoutingState>();
             builder.RegisterLogger();
             builder.RegisterType<MainWindowViewModel>();
             builder.RegisterType<AddServerViewModel>();
             builder.RegisterType<OptionsViewModel>();
             builder.RegisterType<ServerViewModelFactory>();
-            builder.RegisterType<SettingsService>();
+            //TODO: Add fileservice to determine save location per OS and inject into SettingsService
+            builder.RegisterType<SettingsService>()
+                .WithParameter(new TypedParameter(typeof(string), "settings.conf")).As<ISettingsService>();
             builder.RegisterType<ViewModelActivator>();
-            //builder.RegisterType<DatabaseContextFactory>();
-            //builder.RegisterType<DatabaseService>().As<IDatabaseService>();
             builder.RegisterType<GotifyServiceFactory>().As<IGotifyServiceFactory>();
             builder.RegisterType<GotifyServiceFactory>();
             builder.RegisterType<SettingsViewModel>();
-            //builder.RegisterType<GotifySharp>();
-            builder.RegisterType<NoSyncService>().As<ISyncService>();
             builder.RegisterType<BusyViewModel>();
             builder.RegisterType<AlertMessageViewModel>();
-            //builder.Register(c => new RoutingService() { router = c.ResolveOptional<MainWindowViewModel>().Router }).SingleInstance();
             return builder.Build();
         }
     }

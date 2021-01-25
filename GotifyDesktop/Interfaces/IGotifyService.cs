@@ -16,6 +16,5 @@ namespace GotifyDesktop.Service
         Task<List<ApplicationModel>> GetApplications();
         Task<List<MessageModel>> GetMessagesForApplication(int id);
         void InitWebsocket();
-        Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol);
     }
 }

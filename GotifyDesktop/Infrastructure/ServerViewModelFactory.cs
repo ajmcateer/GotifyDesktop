@@ -1,4 +1,5 @@
-﻿using GotifyDesktop.Models;
+﻿using Autofac;
+using GotifyDesktop.Models;
 using GotifyDesktop.Service;
 using GotifyDesktop.ViewModels;
 using ReactiveUI;
@@ -11,19 +12,18 @@ namespace GotifyDesktop.Infrastructure
 {
     public class ServerViewModelFactory
     {
-        ILogger _ilogger;
         GotifyServiceFactory _gotifyServiceFactory;
+        SettingsViewModel _settingsViewModel;
 
-        public ServerViewModelFactory(GotifyServiceFactory gotifyServiceFactory, ILogger ilogger)
+        public ServerViewModelFactory(GotifyServiceFactory gotifyServiceFactory, SettingsViewModel settingsViewModel)
         {
             _gotifyServiceFactory = gotifyServiceFactory;
-            _ilogger = ilogger;
+            _settingsViewModel = settingsViewModel;
         }
 
-        public ServerViewModel GetNewServerViewModel(ServerInfo serverInfo)
+        public ServerViewModel GetNewServerViewModel(IScreen screen)
         {
-            var test = _gotifyServiceFactory.CreateNewGotifyService(serverInfo, _ilogger) as GotifyService;
-            return new ServerViewModel(new NoSyncService(test, _ilogger));
+            return new ServerViewModel(_gotifyServiceFactory, _settingsViewModel.InitRouting(screen), screen);
         }
     }
 }

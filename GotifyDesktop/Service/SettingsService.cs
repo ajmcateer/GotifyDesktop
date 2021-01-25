@@ -1,25 +1,22 @@
-﻿using GotifyDesktop.Models;
-using GotifyDesktop.ViewModels;
+﻿using GotifyDesktop.Interfaces;
+using GotifyDesktop.Models;
 using Newtonsoft.Json;
-using ReactiveUI;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace GotifyDesktop.Service
 {
-    public class SettingsService
+    public class SettingsService : ISettingsService
     {
-        private string Path = "settings.conf";
+        private string _path;
 
-        public SettingsService()
+        public SettingsService(string path)
         {
+            _path = path;
         }
 
         public bool DoesSettingsExist()
         {
-            if (File.Exists(Path))
+            if (File.Exists(_path))
             {
                 return true;
             }
@@ -29,14 +26,14 @@ namespace GotifyDesktop.Service
         public void SaveSettings(ServerInfo serverInfo)
         {
             string json = JsonConvert.SerializeObject(serverInfo);
-            File.WriteAllText(Path, json);
+            File.WriteAllText(_path, json);
         }
 
         public ServerInfo GetSettings()
         {
             if (DoesSettingsExist())
             {
-                return JsonConvert.DeserializeObject<ServerInfo>(File.ReadAllText(Path));
+                return JsonConvert.DeserializeObject<ServerInfo>(File.ReadAllText(_path));
             }
             else
             {
@@ -44,7 +41,7 @@ namespace GotifyDesktop.Service
             }
         }
 
-        internal bool IsServerConfigured()
+        public bool IsServerConfigured()
         {
             if (DoesSettingsExist())
             {

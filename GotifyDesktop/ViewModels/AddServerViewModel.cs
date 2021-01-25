@@ -104,26 +104,9 @@ namespace GotifyDesktop.ViewModels
         //declare event of type delegate
         public event SaveServer saveServerEvent;
 
-        IGotifyServiceFactory _gotifyServiceFactory;
-        ILogger _logger;
-
-        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger)
+        public AddServerViewModel()
         {
-            _gotifyServiceFactory = gotifyServiceFactory;
-            _logger = logger;
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
-        }
-
-        public AddServerViewModel(IGotifyServiceFactory gotifyServiceFactory, ILogger logger, ServerInfo serverInfo) 
-            : this(gotifyServiceFactory, logger)
-        {
-            this.oldServer = serverInfo;
-            Username = oldServer.Username;
-            Password = oldServer.Password;
-            Path = oldServer.Path;
-            Port = oldServer.Port.ToString();
-            Url = oldServer.Url;
-            SelectedProtocol = oldServer.Protocol;
         }
 
         private string GenerateClientName()
@@ -132,20 +115,11 @@ namespace GotifyDesktop.ViewModels
             return "GotifyDesktop-" + epoch.Substring(epoch.Length - 8);
         }
 
-        //public void Save()
-        //{
-        //    var serverInfo = new ServerInfo(0, Url, Int32.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "Gotify Server");
-
-        //    taskCompletionSource.SetResult(serverInfo);
-        //    saveServerEvent?.Invoke();
-        //}
-
         public async Task CheckConnection()
         {
-            IGotifyService gotifyService = _gotifyServiceFactory.CreateNewGotifyService(Save(), _logger);
             try
             {
-                var isConnGood = await gotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
+                var isConnGood = await GotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
                 if (isConnGood)
                 {
                     await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Plus);
@@ -186,7 +160,7 @@ namespace GotifyDesktop.ViewModels
             //saveServerEvent?.Invoke();
         }
 
-        public void SetServerInfo(ServerInfo serverInfo)
+        public virtual void SetServerInfo(ServerInfo serverInfo)
         {
             this.ClientName = serverInfo.ClientName;
             this.Password = serverInfo.Password;
@@ -197,7 +171,7 @@ namespace GotifyDesktop.ViewModels
             this.Username = serverInfo.Username;
         }
 
-        public void SetNewServer()
+        public virtual void SetNewServer()
         {
             Path = "/";
             IsSaveEnabled = false;
