@@ -10,6 +10,8 @@ using gotifySharp.Interfaces;
 using gotifySharp.Models;
 using gotifySharp.Responses;
 using Serilog;
+using static gotifySharp.Enums.ConnectionInfo;
+using gotifySharp.API;
 
 namespace GotifyDesktop.Service
 {
@@ -17,20 +19,26 @@ namespace GotifyDesktop.Service
     {
         private GotifySharp gotifySharp;
         ILogger _logger;
-        public event EventHandler<MessageModel> OnMessage;
-        public event EventHandler<ConnectionStatus> ConnectionState;
+        ServerInfo _serverInfo;
 
-        public GotifyService(ILogger logger)
+        public event EventHandler<MessageModel> OnMessage;
+        public event EventHandler<WebsocketDisconnectStatus> OnDisconnect;
+        public event EventHandler<WebsocketReconnectStatus> OnReconnect;
+        
+        public GotifyService(ServerInfo serverInfo)
         {
-            this._logger = logger;
+            _serverInfo = serverInfo;
+            IConfig config = new AppConfig(serverInfo.Username, serverInfo.Password, serverInfo.Url, serverInfo.Port, serverInfo.Protocol, serverInfo.Path);
+            gotifySharp = new GotifySharp(config);
+            gotifySharp.OnMessage += GotifySharp_OnMessage;
+            gotifySharp.OnDisconnect += GotifySharp_OnDisconnect;
+            gotifySharp.OnReconnect += GotifySharp_OnReconnect;
         }
 
-        public async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
+        public static async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
         {
-            //_logger.Information("Starting Connection Test");
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
             GotifySharp gotifySharp = new GotifySharp(config);
-            //_logger.Debug("GotifySharp Configured");
 
             try
             {
@@ -38,18 +46,15 @@ namespace GotifyDesktop.Service
 
                 if (res.Success)
                 {
-                    //_logger.Information("Test Success");
                     return true;
                 }
                 else
                 {
-                    //_logger.Information("Test Failed");
                     return false;
                 }
             }
             catch (HttpRequestException HttpExcep)
             {
-                //_logger.Error(HttpExcep, "Test Failed");
                 throw HttpExcep;
             }
         }
@@ -59,25 +64,18 @@ namespace GotifyDesktop.Service
             IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
             gotifySharp = new GotifySharp(config);
             gotifySharp.OnMessage += GotifySharp_OnMessage;
-            gotifySharp.OnError += GotifySharp_OnError;
-            gotifySharp.OnClose += GotifySharp_OnClose;
-            gotifySharp.OnOpen += GotifySharp_OnOpen;
+            gotifySharp.OnDisconnect += GotifySharp_OnDisconnect;
+            gotifySharp.OnReconnect += GotifySharp_OnReconnect;
         }
 
-        private void GotifySharp_OnOpen(object sender, EventArgs e)
+        private void GotifySharp_OnReconnect(object sender, WebsocketReconnectStatus e)
         {
-            //TODO Fix Race Condition
-            Connection(ConnectionStatus.Successful);
+            OnReconnect?.Invoke(this, e);
         }
 
-        private void GotifySharp_OnClose(object sender, EventArgs e)
+        private void GotifySharp_OnDisconnect(object sender, WebsocketDisconnectStatus e)
         {
-            Connection(ConnectionStatus.Failed);
-        }
-
-        private void GotifySharp_OnError(object sender, EventArgs e)
-        {
-            Connection(ConnectionStatus.Failed);
+            OnDisconnect?.Invoke(this, e);
         }
 
         private void GotifySharp_OnMessage(object sender, MessageModel e)
@@ -95,13 +93,11 @@ namespace GotifyDesktop.Service
                 {
                     applications.Add(appResponse);
                 }
-                Connection(ConnectionStatus.Successful);
                 return applications;
             }
             catch (HttpRequestException httpExc)
             {
                 _logger.Error(httpExc, "Unable to Get Applications");
-                Connection(ConnectionStatus.Failed);
                 throw new SyncFailureException();
             }
         }
@@ -121,26 +117,18 @@ namespace GotifyDesktop.Service
                 {
                     messages.Add(response);
                 }
-                Connection(ConnectionStatus.Successful);
                 return messages;
             }
             catch (HttpRequestException httpExc)
             {
                 _logger.Error(httpExc, "Unable to Get Messages");
-                Connection(ConnectionStatus.Failed);
                 throw new SyncFailureException();
             }
             catch (NullReferenceException nullExcp)
             {
                 _logger.Error(nullExcp, "Unable to Get Messages");
-                Connection(ConnectionStatus.Failed);
                 throw new SyncFailureException();
             }
-        }
-
-        private void Connection(ConnectionStatus status)
-        {
-            ConnectionState?.Invoke(this, status);
         }
     }
 

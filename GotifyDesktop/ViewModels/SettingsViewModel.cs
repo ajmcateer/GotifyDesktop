@@ -5,38 +5,30 @@ using ReactiveUI;
 using Splat;
 using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GotifyDesktop.ViewModels
 {
-    public class SettingsViewModel : ViewModelBase, IRoutableViewModel
+    public class SettingsViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
     {
 
         // Reference to IScreen that owns the routable view model.
-        public IScreen HostScreen { get; }
+        public IScreen HostScreen { get; set; }
 
         // Unique identifier for the routable view model.
         public string UrlPathSegment { get; } = Guid.NewGuid().ToString().Substring(0, 5);
         public ServerInfo serverInfo;
-        private ServerInfo newServerInfo;
+        ISettingsService _settingsService;
 
-        IServerPageInterface addServerViewModel;
+        bool _serverUpdate;
+
+        AddServerViewModel addServerViewModel;
         ISettingsPageInterface optionsViewModel;
-        IDatabaseService databaseService;
-        RoutingService routingService;
 
-        public ServerInfo NewServerInfo
-        {
-            get => newServerInfo;
-            set => this.RaiseAndSetIfChanged(ref newServerInfo, value);
-        }
-
-        public IDatabaseService DatabaseService
-        {
-            get => databaseService;
-            set => this.RaiseAndSetIfChanged(ref databaseService, value);
-        }
+        public ViewModelActivator Activator { get; }
 
         public ISettingsPageInterface OptionsViewModel
         {
@@ -44,53 +36,80 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref optionsViewModel, value);
         }
 
-        public IServerPageInterface AddServerViewModel
+        public AddServerViewModel AddServerViewModel
         {
             get => addServerViewModel;
             set => this.RaiseAndSetIfChanged(ref addServerViewModel, value);
+        }        
+        
+        public bool ServerUpdate
+        {
+            get => _serverUpdate;
+            set => this.RaiseAndSetIfChanged(ref _serverUpdate, value);
         }
 
-        public SettingsViewModel(AddServerViewModel addServerViewModel, OptionsViewModel optionsViewModel,
-            IDatabaseService databaseService)
+        public SettingsViewModel(AddServerViewModel addServerViewModel, 
+            OptionsViewModel optionsViewModel,
+            ISettingsService settingsService)
         {
-            HostScreen = Locator.Current.GetService<IScreen>();
-
             AddServerViewModel = addServerViewModel;
             OptionsViewModel = optionsViewModel;
-            DatabaseService = databaseService;
+            _settingsService = settingsService;
 
-            //this.routingService = routingService;
+            ServerUpdate = false;
+
+            Activator = new ViewModelActivator();
+
+            this.AddServerViewModel.WhenAnyValue(x => x.UpdatedServer)
+                .Where(x => x != null)
+                .Subscribe(x => SaveRx(x));
+
+            this.WhenActivated((CompositeDisposable disposables) =>
+            {
+                OnActivation();
+                Disposable
+                    .Create(() => { /* handle deactivation */ })
+                    .DisposeWith(disposables);
+            });
         }
 
-        public void SetupSettings(ServerInfo serverInfo)
+        public SettingsViewModel InitRouting(IScreen screen)
         {
-            addServerViewModel.SetServerInfo(serverInfo);
+            HostScreen = screen;
+            return this;
         }
 
-        public void SetupNewSettings()
+        private void OnActivation()
         {
-            addServerViewModel.SetNewServer();
+            if (_settingsService.IsServerConfigured())
+            {
+                AddServerViewModel.SetServerInfo(GetSettings());
+            }
+            else
+            {
+                AddServerViewModel.SetNewServer();
+            }
         }
 
-        public async Task Apply()
+        public ServerInfo GetSettings()
         {
-            NewServerInfo = AddServerViewModel.Save();
-
-            databaseService.InsertServer(newServerInfo);
+            return _settingsService.GetSettings();
         }
 
-        public async Task Save()
+        public bool IsServerConfigured()
         {
-            NewServerInfo = AddServerViewModel.Save();
-
-            databaseService.InsertServer(newServerInfo);
-            Cancel();
+            return _settingsService.IsServerConfigured();
         }
 
-        public async Task Cancel()
+        public void SaveRx(ServerInfo serverInfo)
         {
-            var test = Locator.Current.GetService<ICustomScreen>();
-            _ = test.Router.NavigateBack.Execute();
+            _settingsService.SaveSettings(serverInfo);
+            ServerUpdate = true;
+        }
+
+        public async Task Back()
+        {
+            await HostScreen.Router.NavigateBack.Execute();
         }
     }
 }

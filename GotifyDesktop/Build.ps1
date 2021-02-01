@@ -1,9 +1,9 @@
 ﻿$path = Split-Path -parent $MyInvocation.MyCommand.Definition
-$releaseFolder = $path + '\bin\Release\netcoreapp3.0'
+$releaseFolder = $path + '\bin\Release\netcoreapp3.1'
 
-$linuxPath = $path + '\bin\Release\netcoreapp3.0\linux-x64\publish'
-$osxPath = $path + '\bin\Release\netcoreapp3.0\osx-x64\publish'
-$winPath = $path + '\bin\Release\netcoreapp3.0\win-x64\publish'
+$linuxPath = $path + '\bin\Release\netcoreapp3.1\linux-x64\publish'
+$osxPath = $path + '\bin\Release\netcoreapp3.1\osx-x64\publish'
+$winPath = $path + '\bin\Release\netcoreapp3.1\win-x64\publish'
 
 $linuxZipPath = $linuxPath + '\GotifyDesktop-Linux.zip'
 $osxZipPath = $osxPath + '\GotifyDesktop-Mac.zip'
@@ -16,11 +16,12 @@ Set-Location -Path $path
 dotnet publish -f netcoreapp3.1 -r win-x64 -c Release /p:PublishSingleFile=true
 dotnet publish -f netcoreapp3.1 -r linux-x64 -c Release
 dotnet publish -f netcoreapp3.1 -r osx-x64 -c Release
+dotnet publish -f netcoreapp3.1 -r linux-arm64 -c Release
 
-if (!(Get-Module "Microsoft.PowerShell.Archive")) {
-    Write-Output "Microsoft.PowerShell.Archive not installed please install and rerun the script"
-    Exit 
-}
+#if (!(Get-Module "Microsoft.PowerShell.Archive")) {
+#    Write-Output "Microsoft.PowerShell.Archive not installed please install and rerun the script"
+#    Exit 
+#}
 
 $module = Get-InstalledModule "Microsoft.PowerShell.Archive"
 if($module.Version.Major -eq 1 -And $module.Version.Minor -eq 2 -And $module.Version.Build -lt 3){

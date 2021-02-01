@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="c4eeabb6-7ec4-43ac-aa8e-9ef1752a9e5a" name="aj551@DESKTOP-2IA2V6V 2021-01-23 14:58:43" runUser="DESKTOP-2IA2V6V\aj551" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2021-01-23T14:58:43.1645375-05:00" queuing="2021-01-23T14:58:43.1645386-05:00" start="2021-01-23T14:58:43.0257446-05:00" finish="2021-01-23T14:58:43.1659161-05:00" />
+  <TestSettings name="default" id="f5ccc9b5-4d1b-4853-847a-1893814f4ed1">
+    <Deployment runDeploymentRoot="aj551_DESKTOP-2IA2V6V_2021-01-23_14_58_43" />
+  </TestSettings>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="0" executed="0" passed="0" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-2IA2V6V" outcome="Error" timestamp="2021-01-23T14:58:43.1362788-05:00">
+        <Text>Unable to find C:\Users\aj551\Documents\git\GotifyDesktop\GotifyDesktop\bin\Debug\netcoreapp3.1\testhost.dll. Please publish your test project and retry.</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

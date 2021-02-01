@@ -11,17 +11,32 @@
       <RowDefinition Height="1*"/>
       <RowDefinition Height="32"/>
     </Grid.RowDefinitions>
-    <TextBlock Grid.Row="0" 
-               Text="Settings"
-               FontSize="25"/>
-    <TabControl Grid.Row="1">
-      <TabItem Header="Servers" Width="150">
+    <StackPanel Orientation="Horizontal">
+      <Button Command="{Binding Back}"
+              Background="Transparent">
+        <Image
+                Source="avares://GotifyDesktop/Assets/Back-Light.ico"
+                Height="16"
+                Width="16"
+                DockPanel.Dock="Right"
+                Margin="5"
+                Grid.Column="1"
+                HorizontalAlignment="Right"/>
+      </Button>
+      <TextBlock Grid.Row="0"
+           Text="Settings"
+           VerticalAlignment="Center"
+           FontSize="25"/>
+    </StackPanel>
+    <TabControl Grid.Row="1"
+                TabStripPlacement="Left">
+      <TabItem Header="Server" Width="150">
           <local:AddServerView Margin="10"
             DataContext="{Binding AddServerViewModel}"/>
       </TabItem>
-      <TabItem Header="Options" IsVisible="False">
-        <local:OptionsView DataContext="{Binding OptionsViewModel}"/>
-      </TabItem>
+      <!--<TabItem Header="Options">
+        <local:OptionsView DataContext="{Binding OptionsViewModel}/>
+      </TabItem>-->
     </TabControl>
     <Grid Grid.Row="2">
       <Grid.ColumnDefinitions>

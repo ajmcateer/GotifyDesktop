@@ -1,4 +1,5 @@
-﻿using GotifyDesktop.Service;
+﻿using GotifyDesktop.Models;
+using GotifyDesktop.Service;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ namespace GotifyDesktop.Infrastructure
 {
     public class GotifyServiceFactory : IGotifyServiceFactory
     {
-        public IGotifyService CreateNewGotifyService(ILogger ilogger)
+        public IGotifyService CreateNewGotifyService(ServerInfo serverInfo)
         {
-            return new GotifyService(ilogger);
+            return new GotifyService(serverInfo);
         }
     }
 }

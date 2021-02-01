@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Newtonsoft.Json;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,16 +9,33 @@ namespace GotifyDesktop.Models
     public class ServerInfo : ReactiveObject
     {
         string url;
+
+        [JsonProperty]
         public int ID { get; set; }
+
         //public string Url { get; set; }
+        [JsonProperty]
         public int Port { get; set; }
+
+        [JsonProperty]
         public string Username { get; set; }
+
+        [JsonProperty]
         public string Password { get; set; }
+
+        [JsonProperty]
         public string Protocol { get; set; }
+
+        [JsonProperty]
         public string Path { get; set; }
+
+        [JsonProperty]
         public string ClientName { get; set; }
+
+        [JsonProperty]
         public string ServerName { get; set; }
 
+        [JsonProperty]
         public string Url
         {
             get => url;
