@@ -19,10 +19,10 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="AutofacSerilogIntegration" Version="2.1.0" />
-    <PackageReference Include="Avalonia" Version="0.10.0-preview5" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.10.0-preview5" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0-preview5" />
-    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.0-preview2" />
+    <PackageReference Include="Avalonia" Version="0.10.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.5" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.5" />
+    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.5.1" />
     <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="3.0.0" />
     <PackageReference Include="mameolan.Avalonia.Controlz" Version="1.0.0-CI-20200523-051541" />
     <PackageReference Include="mameolan.Avalonia.ExtendedToolkit" Version="1.0.0-CI-20200523-051541" />

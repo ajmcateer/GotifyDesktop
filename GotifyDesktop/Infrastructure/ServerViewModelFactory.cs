@@ -13,17 +13,21 @@ namespace GotifyDesktop.Infrastructure
     public class ServerViewModelFactory
     {
         GotifyServiceFactory _gotifyServiceFactory;
-        SettingsViewModel _settingsViewModel;
 
-        public ServerViewModelFactory(GotifyServiceFactory gotifyServiceFactory, SettingsViewModel settingsViewModel)
+        public ServerViewModelFactory(GotifyServiceFactory gotifyServiceFactory)
         {
             _gotifyServiceFactory = gotifyServiceFactory;
-            _settingsViewModel = settingsViewModel;
         }
 
-        public ServerViewModel GetNewServerViewModel(IScreen screen)
+        public ServerViewModelFactory()
         {
-            return new ServerViewModel(_gotifyServiceFactory, _settingsViewModel.InitRouting(screen), screen);
+
+        }
+
+        public ServerViewModel GetNewServerViewModel(GotifyService gotifyService)
+        {
+            //return new ServerViewModel(_gotifyServiceFactory, _settingsViewModel.InitRouting(screen), screen);
+            return new ServerViewModel(gotifyService);
         }
     }
 }

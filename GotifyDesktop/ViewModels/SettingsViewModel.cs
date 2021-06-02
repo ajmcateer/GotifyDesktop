@@ -20,7 +20,6 @@ namespace GotifyDesktop.ViewModels
 
         // Unique identifier for the routable view model.
         public string UrlPathSegment { get; } = Guid.NewGuid().ToString().Substring(0, 5);
-        public ServerInfo serverInfo;
         ISettingsService _settingsService;
 
         bool _serverUpdate;
@@ -71,12 +70,6 @@ namespace GotifyDesktop.ViewModels
                     .Create(() => { /* handle deactivation */ })
                     .DisposeWith(disposables);
             });
-        }
-
-        public SettingsViewModel InitRouting(IScreen screen)
-        {
-            HostScreen = screen;
-            return this;
         }
 
         private void OnActivation()

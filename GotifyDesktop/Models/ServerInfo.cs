@@ -31,6 +31,8 @@ namespace GotifyDesktop.Models
 
         [JsonProperty]
         public string ClientName { get; set; }
+        [JsonProperty]
+        public string ClientToken { get; set; }
 
         [JsonProperty]
         public string ServerName { get; set; }
@@ -42,12 +44,7 @@ namespace GotifyDesktop.Models
             set => this.RaiseAndSetIfChanged(ref url, value);
         }
 
-        public ServerInfo()
-        {
-
-        }
-
-        public ServerInfo(int ID, string Url, int Port, string Username, string Password, string Path, string Protocol, string ClientName, string ServerName)
+        public ServerInfo(string Url, int Port, string Username, string Password, string Path, string Protocol, string ClientName, string ServerName)
         {
             this.ID = ID;
             this.Url = Url;
@@ -58,6 +55,16 @@ namespace GotifyDesktop.Models
             this.Path = Path;
             this.ClientName = ClientName;
             this.ServerName = ServerName;
+        }
+
+        public ServerInfo()
+        {
+
+        }
+
+        public string GetHostPath()
+        {
+            return $"{Protocol}://{Url}:{Port}/{Path}";
         }
     }
 }

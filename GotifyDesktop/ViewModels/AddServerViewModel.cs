@@ -18,10 +18,8 @@ namespace GotifyDesktop.ViewModels
 {
     public class AddServerViewModel : ViewModelBase
     {
-        TaskCompletionSource<ServerInfo> taskCompletionSource;
         ObservableCollection<string> protocols;
         private ServerInfo updatedServer;
-        private ServerInfo oldServer;
 
         private bool isVisible;
         private bool isSaveEnabled;
@@ -99,11 +97,6 @@ namespace GotifyDesktop.ViewModels
             set => this.RaiseAndSetIfChanged(ref protocols, value);
         }
 
-        public delegate void SaveServer();
-
-        //declare event of type delegate
-        public event SaveServer saveServerEvent;
-
         public AddServerViewModel()
         {
             Protocols = new ObservableCollection<string>() { "Http", "Https"};
@@ -119,17 +112,17 @@ namespace GotifyDesktop.ViewModels
         {
             try
             {
-                var isConnGood = await GotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
-                if (isConnGood)
-                {
-                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Plus);
-                    IsSaveEnabled = true;
-                }
-                else
-                {
-                    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Failure", "Server is not reachable", Icon.Error);
-                    IsSaveEnabled = false;
-                }
+                //var isConnGood = await GotifyService.TestConnectionAsync(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol);
+                //if (isConnGood)
+                //{
+                //    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Success", "Server is reachable", Icon.Plus);
+                //    IsSaveEnabled = true;
+                //}
+                //else
+                //{
+                //    await Dialog.ShowMessageAsync(ButtonEnum.Ok, "Failure", "Server is not reachable", Icon.Error);
+                //    IsSaveEnabled = false;
+                //}
             }
             catch (Exception e)
             {
@@ -142,19 +135,19 @@ namespace GotifyDesktop.ViewModels
         {
             return new ServerInfo()
             {
-                ClientName = this.ClientName,
-                Password = this.Password,
-                Path = this.Path,
-                Port = int.Parse(this.Port),
-                Protocol = this.SelectedProtocol,
-                Url = this.Url,
-                Username = this.Username
+                ClientName = ClientName,
+                Password = Password,
+                Path = Path,
+                Port = int.Parse(Port),
+                Protocol = SelectedProtocol,
+                Url = Url,
+                Username = Username
             };
         }
 
         public void SaveNew()
         {
-            var tempServer = new ServerInfo(0, Url, int.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "");
+            var tempServer = new ServerInfo(Url, int.Parse(Port), Username, Password, Path, SelectedProtocol, ClientName, "");
             UpdatedServer = tempServer;
 
             //saveServerEvent?.Invoke();

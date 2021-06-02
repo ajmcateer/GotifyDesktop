@@ -1,23 +1,16 @@
-﻿<FluentWindow xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="clr-namespace:GotifyDesktop.ViewModels;assembly=GotifyDesktop"
+        xmlns:vm="using:aj551.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
-        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
-        xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
-        xmlns:ham="clr-namespace:GotifyDesktop.Controls;assembly=GotifyDesktop"
-        xmlns:Controls="clr-namespace:Avalonia.ExtendedToolkit.Controls;assembly=Avalonia.ExtendedToolkit"
-        xmlns:reactiveUi="http://reactiveui.net"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Width="1200"
-        Height="800"
-        Background="#171717"
-        x:Class="GotifyDesktop.Views.MainWindow"
-        xmlns:local="clr-namespace:GotifyDesktop.Views"
-        Name="MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="GotifyDesktop">
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    Width="1200"
+    Height="800"
+    Background="#171717"
+    x:Class="GotifyDesktop.Views.MainWindow"
+    Name="MainWindow"
+    Icon="/Assets/avalonia-logo.ico"
+    Title="GotifyDesktop">
 
     <!--<i:Interaction.Behaviors>
       <ia:EventTriggerBehavior EventName="Opened" SourceObject="{Binding MainWindow}">
@@ -25,7 +18,7 @@
       </ia:EventTriggerBehavior>
     </i:Interaction.Behaviors>-->
 
-  <FluentWindow.Styles>
+  <Window.Styles>
     <!--<Style Selector="ListBoxItem">
       <Setter Property="VerticalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -36,9 +29,9 @@
       <Setter Property="Padding" Value="0"/>
     </Style>-->
     <Style Selector="TitleBar:fullscreen">
-      <Setter Property="Background" Value="#7f000000" />
+        <Setter Property="Background" Value="#7f000000" />
     </Style>
-  </FluentWindow.Styles>
+  </Window.Styles>
  
   <Grid>
     <Grid.RowDefinitions>
@@ -163,4 +156,4 @@
       </reactiveUi:RoutedViewHost.DefaultContent>
     </reactiveUi:RoutedViewHost>
   </Grid>
-</FluentWindow>
+</Window>

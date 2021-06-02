@@ -62,6 +62,13 @@ namespace GotifyDesktop.ViewModels
 
         public string UrlPathSegment => throw new NotImplementedException();
 
+        public ServerViewModel(IGotifyService gotifyService)
+        {
+            _gotifyService = gotifyService;
+
+            SubScribeToEvents();
+        }
+
         public ServerViewModel(IGotifyServiceFactory gotifyServiceFactory,
             SettingsViewModel settingsViewModel,
             IScreen screen)
@@ -83,6 +90,21 @@ namespace GotifyDesktop.ViewModels
             this.WhenAnyValue(value => value._settingsViewModel.ServerUpdate)
                 .Where(value => value == true)
                 .Subscribe(async ValueTask => await ReConfigureAsync(ValueTask));
+
+            this.WhenActivated(async (CompositeDisposable disposables) =>
+            {
+                await OnActivationAsync();
+                Disposable
+                    .Create(() => { OnCloseAsync(); })
+                    .DisposeWith(disposables);
+            });
+        }
+
+        public void SubScribeToEvents()
+        {
+            this.WhenAnyValue(value => value.SelectedItem.Changed)
+                .Where(value => value != null)
+                .Subscribe(ValueTask => UpdateMessageDisplay());
 
             this.WhenActivated(async (CompositeDisposable disposables) =>
             {

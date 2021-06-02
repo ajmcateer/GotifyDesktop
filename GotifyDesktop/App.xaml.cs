@@ -113,20 +113,20 @@ namespace GotifyDesktop
         private IContainer BuildContainer()
         {
             var builder = new ContainerBuilder();
-            loggingLevelSwitch = new LoggingLevelSwitch();
-            loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
+            //loggingLevelSwitch = new LoggingLevelSwitch();
+            //loggingLevelSwitch.MinimumLevel = LogEventLevel.Information;
 
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(loggingLevelSwitch)
-                .WriteTo.Console()
-                .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
+            //Log.Logger = new LoggerConfiguration()
+            //    .MinimumLevel.ControlledBy(loggingLevelSwitch)
+            //    .WriteTo.Console()
+            //    .WriteTo.File("logs/GotifyDesktop.log", rollingInterval: RollingInterval.Day)
+            //    .CreateLogger();
 
             builder.Register(ctx =>
             {
                 return new RoutingState();
             }).As<RoutingState>();
-            builder.RegisterLogger();
+            //builder.RegisterLogger();
             builder.RegisterType<MainWindowViewModel>();
             builder.RegisterType<AddServerViewModel>();
             builder.RegisterType<OptionsViewModel>();

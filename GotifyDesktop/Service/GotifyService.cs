@@ -11,7 +11,7 @@ using gotifySharp.Models;
 using gotifySharp.Responses;
 using Serilog;
 using static gotifySharp.Enums.ConnectionInfo;
-using gotifySharp.API;
+using gotifySharp.Api;
 
 namespace GotifyDesktop.Service
 {
@@ -29,43 +29,43 @@ namespace GotifyDesktop.Service
         {
             _serverInfo = serverInfo;
             IConfig config = new AppConfig(serverInfo.Username, serverInfo.Password, serverInfo.Url, serverInfo.Port, serverInfo.Protocol, serverInfo.Path);
-            gotifySharp = new GotifySharp(config);
-            gotifySharp.OnMessage += GotifySharp_OnMessage;
-            gotifySharp.OnDisconnect += GotifySharp_OnDisconnect;
-            gotifySharp.OnReconnect += GotifySharp_OnReconnect;
+            //gotifySharp = new GotifySharp(config);
+            //gotifySharp.OnMessage += GotifySharp_OnMessage;
+            //gotifySharp.OnDisconnect += GotifySharp_OnDisconnect;
+            //gotifySharp.OnReconnect += GotifySharp_OnReconnect;
         }
 
-        public static async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
-        {
-            IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
-            GotifySharp gotifySharp = new GotifySharp(config);
+        //public static async Task<bool> TestConnectionAsync(string Url, int port, string Username, string Password, string Path, string Protocol)
+        //{
+        //    IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
+        //    GotifySharp gotifySharp = new GotifySharp(config);
 
-            try
-            {
-                var res = await gotifySharp.GetApplications();
+        //    try
+        //    {
+        //        //var res = await gotifySharp.GetApplications();
 
-                if (res.Success)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (HttpRequestException HttpExcep)
-            {
-                throw HttpExcep;
-            }
-        }
+        //        //if (res.Success)
+        //        //{
+        //        //    return true;
+        //        //}
+        //        //else
+        //        //{
+        //        //    return false;
+        //        //}
+        //    }
+        //    catch (HttpRequestException HttpExcep)
+        //    {
+        //        throw HttpExcep;
+        //    }
+        //}
 
         public void Configure(string Url, int port, string Username, string Password, string Path, String Protocol)
         {
-            IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
-            gotifySharp = new GotifySharp(config);
-            gotifySharp.OnMessage += GotifySharp_OnMessage;
-            gotifySharp.OnDisconnect += GotifySharp_OnDisconnect;
-            gotifySharp.OnReconnect += GotifySharp_OnReconnect;
+            //IConfig config = new AppConfig(Username, Password, Url, port, Protocol, Path);
+            //gotifySharp = new GotifySharp(config);
+            //gotifySharp.OnMessage += GotifySharp_OnMessage;
+            //gotifySharp.OnDisconnect += GotifySharp_OnDisconnect;
+            //gotifySharp.OnReconnect += GotifySharp_OnReconnect;
         }
 
         private void GotifySharp_OnReconnect(object sender, WebsocketReconnectStatus e)
@@ -88,11 +88,11 @@ namespace GotifyDesktop.Service
             try
             {
                 List<ApplicationModel> applications = new List<ApplicationModel>();
-                var response = await gotifySharp.GetApplications();
-                foreach (var appResponse in response.ApplicationResponse)
-                {
-                    applications.Add(appResponse);
-                }
+                //var response = await gotifySharp.GetApplications();
+                //foreach (var appResponse in response.ApplicationResponse)
+                //{
+                //    applications.Add(appResponse);
+                //}
                 return applications;
             }
             catch (HttpRequestException httpExc)
@@ -104,7 +104,7 @@ namespace GotifyDesktop.Service
 
         public void InitWebsocket()
         {
-            gotifySharp.InitWebsocket();
+            //gotifySharp.InitWebsocket();
         }
 
         public async Task<List<MessageModel>> GetMessagesForApplication(int id)
@@ -112,11 +112,11 @@ namespace GotifyDesktop.Service
             try
             {
                 List<MessageModel> messages = new List<MessageModel>();
-                var messageGetResponse = await gotifySharp.GetMessageForApplicationAsync(id);
-                foreach (MessageModel response in messageGetResponse.MessageGetModel.messages)
-                {
-                    messages.Add(response);
-                }
+                //var messageGetResponse = await gotifySharp.GetMessageForApplicationAsync(id);
+                //foreach (MessageModel response in messageGetResponse.MessageGetModel.messages)
+                //{
+                //    messages.Add(response);
+                //}
                 return messages;
             }
             catch (HttpRequestException httpExc)
