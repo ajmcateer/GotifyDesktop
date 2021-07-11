@@ -14,7 +14,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GotifyDesktopUnitTests", "G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gotifySharp", "..\GotifySharp\gotifySharp\gotifySharp.csproj", "{BD7027AB-6D3F-4179-A7E6-75B63869D33C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GotifyDesktopCli", "GotifyDesktopCli\GotifyDesktopCli.csproj", "{5173A621-E905-4868-B53E-41E5ACFB90D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GotifyDesktopCli", "GotifyDesktopCli\GotifyDesktopCli.csproj", "{5173A621-E905-4868-B53E-41E5ACFB90D0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GotifyDesktop.New", "GotifyDesktop.New\GotifyDesktop.New.csproj", "{CE2C9CE0-0F11-4F69-96E3-2EC6932FDA0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{5173A621-E905-4868-B53E-41E5ACFB90D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5173A621-E905-4868-B53E-41E5ACFB90D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5173A621-E905-4868-B53E-41E5ACFB90D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE2C9CE0-0F11-4F69-96E3-2EC6932FDA0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE2C9CE0-0F11-4F69-96E3-2EC6932FDA0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE2C9CE0-0F11-4F69-96E3-2EC6932FDA0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE2C9CE0-0F11-4F69-96E3-2EC6932FDA0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

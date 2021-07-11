@@ -1,9 +1,6 @@
 ﻿using FluentAssertions;
-using GotifyDesktop.Infrastructure;
-using GotifyDesktop.Interfaces;
-using GotifyDesktop.Models;
-using GotifyDesktop.Service;
-using GotifyDesktop.ViewModels;
+using GotifyDesktop.New.External;
+using GotifyDesktop.New.ViewModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ReactiveUI;
@@ -19,14 +16,9 @@ namespace GotifyDesktopUnitTests
         [TestMethod]
         public void ShouldNavigateToServerView()
         {
-            var GotifyServiceFactory = new Mock<GotifyServiceFactory>();
-            var AddNewServerVm = new Mock<AddServerViewModel>();
-            var OptionsVm = new Mock<OptionsViewModel>();
-            var ISettingService = new Mock<ISettingsService>();
-            var SettingVm = new Mock<SettingsViewModel>(AddNewServerVm.Object, OptionsVm.Object, ISettingService.Object);
-            var ServerVmFactory = new Mock<ServerViewModelFactory>(GotifyServiceFactory.Object, SettingVm.Object);
+            var gotifysharp = new Mock<GotifySharpFactory>();
 
-            //var mainVm = new MainWindowViewModel(ServerVmFactory.Object, new RoutingState());
+            //var mainVm = new MainWindowViewModel();
             //mainVm.Activator.Activate();
 
             //var result = (ServerViewModel)mainVm.Router.GetCurrentViewModel();

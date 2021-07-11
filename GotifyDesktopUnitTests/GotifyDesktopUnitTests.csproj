@@ -8,22 +8,18 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="Moq.EntityFrameworkCore" Version="3.1.2.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
-    <PackageReference Include="coverlet.collector" Version="1.0.1" />
     <!--<PackageReference Include="xunit" Version="2.4.1" />-->
     <!--<PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />-->
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GotifyDesktop.New\GotifyDesktop.New.csproj" />
     <ProjectReference Include="..\GotifyDesktop\GotifyDesktop.csproj" />
   </ItemGroup>
 

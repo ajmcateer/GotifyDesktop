@@ -1,12 +1,12 @@
-﻿<controls:UserControl  xmlns:controls="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:local="clr-namespace:GotifyDesktop.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="GotifyDesktop.Views.ServerView">
+             xmlns:dialog="using:GotifyDesktop.New.Views.Dialogs"
+             x:Class="GotifyDesktop.New.Views.ServerView">
 
-  <!--<UserControl.Styles>
+    <UserControl.Styles>
     <Style Selector="ListBoxItem">
       <Setter Property="VerticalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -17,18 +17,10 @@
       <Setter Property="Padding" Value="0"/>
     </Style>
     <Style Selector="Button.toolbar">
-      <Setter Property="Margin" Value="9,3,9,3"/>
       <Setter Property="Width" Value="40"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Padding" Value="6"/>
-    </Style>
-    <Style Selector="Button.toolbar /template/ ContentPresenter">
-      <Setter Property="CornerRadius" Value="20"/>
-    </Style>
-    <Style Selector="Button:pointerover.toolbar /template/ ContentPresenter">
-      <Setter Property="Background" Value="#80e0e0e0"/>
     </Style>
   </UserControl.Styles>
 
@@ -38,16 +30,11 @@
       <RowDefinition Height="30"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="150" MinWidth="150"/>
-      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="250" MinWidth="150"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
-      <local:AlertMessageView
-        DataContext="{Binding AlertMessageViewModel}"
-        IsVisible="{Binding IsDisplayVisible, FallbackValue=false}"
-        DockPanel.Dock="Top">
-      </local:AlertMessageView>
       <ListBox
+        Background="#3B3B3B"
         DockPanel.Dock="Left"
         ScrollViewer.VerticalScrollBarVisibility="Disabled"
         MinWidth="150"
@@ -55,69 +42,50 @@
         SelectedItem="{Binding SelectedItem}"
         BorderThickness="0"
         Grid.Row="0"
-        Grid.RowSpan="2"
+        Grid.RowSpan="3"
         Grid.Column="0"
         Items="{Binding Applications}">
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <Button Background="Transparent"
-                    IsHitTestVisible="False"
-                    Height="40"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    VerticalContentAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-              <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="1*"/>
-                  <ColumnDefinition Width="15"/>
-                </Grid.ColumnDefinitions>
-                <Image
-                  Source="avares://GotifyDesktop/Assets/Alert-Light.ico"
-                  Height="16"
-                  Width="16"
-                  DockPanel.Dock="Right"
-                  Margin="5"
-                  Grid.Column="1"
-                  IsVisible="{Binding HasAlert}"
-                  HorizontalAlignment="Right"/>
-              <TextBlock
-                x:Name="MyTextBlock"
-                Height="30"
-                Margin="0,5,0,0"
-                FontSize="20"
-                Text="{Binding Name}"
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Left"/>
-              </Grid>
-            </Button>
+                <Grid Height="40">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBlock
+                    x:Name="MyTextBlock"
+                    Margin="0,5,0,0"
+                    FontSize="20"
+                    Text="{Binding Name}"
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left"/>
+                  <Border
+                          BorderBrush="SkyBlue"
+                          IsVisible="{Binding HasAlert}"
+                          BorderThickness="0,0,5,0">
+                  </Border>
+                </Grid>
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
-      <Button Content="Settings"
-                Command="{Binding ShowSettings}"
-                DockPanel.Dock="Bottom"
-                Background="#2B2B2B"
-                MinWidth="150"
-                BorderThickness="0"
-                Grid.Row="1"
-                Grid.Column="0"
-                HorizontalContentAlignment="Center"/>
-      <GridSplitter Grid.Column="1" 
-                    Grid.RowSpan="2"
-                    Width="2"></GridSplitter>
-      <ScrollViewer Grid.Column="2" 
-                    Grid.Row="0"
-                    Grid.RowSpan="2">
+    <DockPanel Grid.Column="2"
+               Grid.Row="0"
+               Grid.RowSpan="2">
+      <dialog:ConnectionStatusView
+              IsVisible="{Binding IsConnectionStatusVisable}"
+              Grid.Column="1"
+              Grid.Row="0"
+              DockPanel.Dock="Top"/>
+      <ScrollViewer DockPanel.Dock="Left">
         <ItemsControl
-            Items="{Binding MessageModels}">
+            Items="{Binding MessageModels}"
+            Background="#424242">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Border HorizontalAlignment="Center"
-                Background="#424242"
                 MinWidth="600"
                 BoxShadow="1 1 1 1 Black"
+                Background="#3B3B3B"
                 MaxWidth="600"
                 Margin="10"
                 BorderThickness="2"
@@ -137,14 +105,13 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="5"/>
                   </Grid.RowDefinitions>
-                  <Image Source="avares://GotifyDesktop/Assets/defaultapp.png"
+                  <Image Source="{Binding Cover}"
                          Grid.Column="1"
                          Grid.Row="1"
                          Grid.RowSpan="2"
                          Height="64"
                          Width="64"
-                         DockPanel.Dock="Left">
-                  </Image>
+                         DockPanel.Dock="Left"/>
                   <TextBlock
                     Grid.Column="2"
                     Grid.Row="1"
@@ -173,12 +140,13 @@
                     TextWrapping="Wrap"
                     HorizontalAlignment="Left"
                     FontSize="14"
-                    Text="{Binding DateString}"/>
+                    Text="{Binding Date}"/>
                 </Grid>
               </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
-  </Grid>-->
-</controls:UserControl>
+    </DockPanel>
+  </Grid>
+</UserControl>

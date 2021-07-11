@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="GotifyDesktop.New.Views.AddServerView">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="1*"/>
+      <RowDefinition Height="1*"/>
+      <RowDefinition Height="1*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="1*"/>
+      <ColumnDefinition Width="1*"/>
+      <ColumnDefinition Width="1*"/>
+    </Grid.ColumnDefinitions>
+
+    <Grid Height="350"
+          Width="300"
+          VerticalAlignment="Center"
+          HorizontalAlignment="Center"
+          Grid.Column="1"
+          Grid.ColumnSpan="1"
+          Grid.Row="1"
+          Grid.RowSpan="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="2.5*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+      </Grid.RowDefinitions>
+      <TextBlock Margin="5"
+            Grid.Column="0"
+            Grid.Row="0"
+            VerticalAlignment="Center"
+            Text="Server Name"
+            ToolTip.Tip="Server Name"/>
+      <TextBlock Margin="5"
+            Grid.Column="0"
+            Grid.Row="1"
+            VerticalAlignment="Center"
+            Text="Client Name"
+            ToolTip.Tip="Client Name"/>
+      <TextBlock Margin="5"
+            Grid.Column="0"
+            Grid.Row="2"
+            VerticalAlignment="Center"
+            Text="Server Url"
+            ToolTip.Tip="Server Url"/>
+      <TextBlock Margin="5"
+            Grid.Column="0"
+            Grid.Row="3"
+            VerticalAlignment="Center"
+            Text="UserName"
+            ToolTip.Tip="UserName"/>
+      <TextBlock Margin="5"
+            Grid.Column="0"
+            Grid.Row="4"
+            VerticalAlignment="Center"
+            Text="Password"
+            ToolTip.Tip="Password"/>
+      <TextBox Margin="5"
+            Grid.Column="1"
+            Grid.Row="0"
+            Watermark="ex: http(s)://"
+            Text="{Binding ServerName}"
+            ToolTip.Tip="Server Name"/>
+      <TextBox Margin="5"
+            Grid.Column="1"
+            Grid.Row="1"
+            Watermark="Client Name"
+            Text="{Binding ClientName}"
+            ToolTip.Tip="Client Name"/>
+      <TextBox Margin="5"
+            Grid.Column="1"
+            Grid.Row="2"
+            Watermark="Server Url"
+            Text="{Binding Url}"
+            ToolTip.Tip="Server Url"/>
+      <TextBox Margin="5"
+            Grid.Column="1"
+            Grid.Row="3"
+            Watermark="Username"
+            Text="{Binding Username}"
+            ToolTip.Tip="Username"/>
+      <TextBox Margin="5"
+            PasswordChar="*"
+            Grid.Column="1"
+            Grid.Row="4"
+            Watermark="Password"
+            Text="{Binding Password}"
+            ToolTip.Tip="Password"/>
+      <Grid Grid.Column="0"
+            Grid.Row="5"
+            Grid.ColumnSpan="2"
+            Grid.RowSpan="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="1*"/>
+          <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Button Content="Test Connection"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Margin="5"
+                Command="{Binding CheckConnection}"
+                ToolTip.Tip="Test Connection"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                HorizontalContentAlignment="Center"/>
+        <Button Content="Save"
+                Grid.Column="0"
+                Grid.Row="7"
+                IsEnabled="{Binding IsSaveEnabled}"
+                Margin="5"
+                Command="{Binding SaveNewAsync}"
+                ToolTip.Tip="Save Settings"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                HorizontalContentAlignment="Center"/>
+      </Grid>
+    </Grid>
+  </Grid>
+</UserControl>

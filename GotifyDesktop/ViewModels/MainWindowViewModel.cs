@@ -35,10 +35,6 @@ namespace GotifyDesktop.ViewModels
             Router = routingState;
             Activator = new ViewModelActivator();
 
-            //this._settingViewModel.WhenAnyValue(x => x.)
-            //    .Where(x => x != null)
-            //    .Subscribe(x => SaveRx(x));
-
             this.WhenActivated(async (CompositeDisposable disposables) =>
             {
                 await OnActivationAsync();
@@ -48,6 +44,10 @@ namespace GotifyDesktop.ViewModels
             });
         }
 
+        public MainWindowViewModel()
+        {
+        }
+
         public async Task OnActivationAsync()
         {
             ServerInfo server = _settingsService.GetSettings();
@@ -55,8 +55,6 @@ namespace GotifyDesktop.ViewModels
             {
                 await Router.Navigate.Execute(_settingViewModel);
             }
-            //var serverViewModel =_serverViewModelFactory.GetNewServerViewModel(new Service.GotifyService());
-            //await Router.Navigate.Execute(serverViewModel);
         }
     }
 }

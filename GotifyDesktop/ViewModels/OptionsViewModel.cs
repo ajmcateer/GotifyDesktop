@@ -33,17 +33,5 @@ namespace GotifyDesktop.ViewModels
         {
             throw new NotImplementedException();
         }
-
-        public void ToggleButton(bool isChecked)
-        {
-            if (isChecked)
-            {
-                Application.Current.Styles[0] = App.FluentLight;
-            }
-            else
-            {
-                Application.Current.Styles[0] = App.FluentDark;
-            }
-        }
     }
 }

@@ -17,10 +17,10 @@
       <ia:EventTriggerBehavior EventName="Opened" SourceObject="{Binding MainWindow}">
         <ia:CallMethodAction TargetObject="{Binding}" MethodName="Initialize"/>
       </ia:EventTriggerBehavior>
-    </i:Interaction.Behaviors>-->
+    </i:Interaction.Behaviors>--><!--
 
   <Window.Styles>
-    <!--<Style Selector="ListBoxItem">
+    --><!--<Style Selector="ListBoxItem">
       <Setter Property="VerticalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -28,7 +28,7 @@
       <Setter Property="Margin" Value="0"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Padding" Value="0"/>
-    </Style>-->
+    </Style>--><!--
     <Style Selector="TitleBar:fullscreen">
         <Setter Property="Background" Value="#7f000000" />
     </Style>
@@ -47,7 +47,7 @@
         <ExperimentalAcrylicMaterial TintColor="#161616" MaterialOpacity="0.85" TintOpacity="1" />
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
-    <!--<SplitView Name="SplitView"
+    --><!--<SplitView Name="SplitView"
              PanePlacement="Left"
              OpenPaneLength="200"
              CompactPaneLength="50"
@@ -155,6 +155,6 @@
       <reactiveUi:RoutedViewHost.DefaultContent>
         <TextBlock Text="Default Content" />
       </reactiveUi:RoutedViewHost.DefaultContent>
-    </reactiveUi:RoutedViewHost>-->
-  </Grid>
+    </reactiveUi:RoutedViewHost>
+  </Grid>-->
 </controls:Window>

@@ -1,0 +1,148 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:rxui="clr-namespace:Avalonia;assembly=Avalonia.ReactiveUI"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:reactiveUi="http://reactiveui.net"
+        xmlns:vm="using:GotifyDesktop.New.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="GotifyDesktop.New.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        ExtendClientAreaToDecorationsHint="True"
+        Title="GotifyDesktop.New">
+
+  <Window.Styles>
+    <Style Selector="ListBoxItem">
+      <Setter Property="VerticalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+  </Window.Styles>
+
+  <Panel>
+    <ExperimentalAcrylicBorder IsHitTestVisible="False">
+      <ExperimentalAcrylicBorder.Material>
+        <ExperimentalAcrylicMaterial
+            BackgroundSource="Digger"
+            TintColor="Black"
+            TintOpacity="1"
+            MaterialOpacity="0.65" />
+      </ExperimentalAcrylicBorder.Material>
+    </ExperimentalAcrylicBorder>
+    
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="1*"/>
+      </Grid.RowDefinitions>
+      <Border Background="#222222"
+        Margin="0"
+        Grid.Row="0"
+        Height="30"
+        VerticalAlignment="Top"
+        IsHitTestVisible="False"/>
+      <StackPanel Orientation="Horizontal"
+                  Grid.Row="0">
+        <ToggleButton Name="PaneOpenButton"
+            Background="Transparent"
+            IsChecked="{Binding IsPaneOpen, ElementName=SplitView}">
+          <ToggleButton.Styles>
+            <Style Selector="ToggleButton:pressed  /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="ToggleButton:checked /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="ToggleButton:unchecked /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="Transparent" />
+            </Style>
+          </ToggleButton.Styles>
+            <Canvas Width="24" Height="24">
+              <Path Fill="{DynamicResource SystemControlForegroundBaseHighBrush}" Data="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+            </Canvas>
+          </ToggleButton>
+        <TextBlock Text="GotifyDesktop"
+                 Height="25"
+                 Margin="5,5,0,0"/>
+      </StackPanel>
+      
+      <SplitView 
+           Name="SplitView"
+           DisplayMode="CompactOverlay"
+           OpenPaneLength="200"
+           Grid.Row="1">
+        <SplitView.Pane>
+          <Grid>
+            <ListBox
+              SelectedItem="{Binding SelectedServer, Mode=TwoWay}"
+              DockPanel.Dock="Left"
+              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+              SelectionMode="Single"
+              BorderThickness="0"
+              Items="{Binding ServerList}">
+              <ListBox.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="Sign Out"
+                            Command="{Binding SignOut}"/>
+                </ContextMenu>
+              </ListBox.ContextMenu>
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal"
+                      Height="40"
+                      Background="Transparent">
+                    <Image Source="avares://GotifyDesktop.New/Assets/defaultapp.png"
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        Grid.RowSpan="2"
+                        Height="16"
+                        Margin="15,0,0,0"
+                        Width="16"/>
+                    <TextBlock Text="{Binding ServerName}"
+                        Margin="18,0,0,0"
+                        VerticalAlignment="Center"/>
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <!--
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Bottom"
+                        Width="24"
+                        Height="24"
+                        Margin="0,0,12,0"
+                        HorizontalAlignment="Right">
+              <Button Command="{Binding SignOut}"
+                      Background="Transparent"
+                      Width="24"
+                      Height="24">
+                <Image Source="avares://GotifyDesktop.New/Assets/Options.png"
+                   Grid.Column="1"
+                   Grid.Row="1"
+                   Grid.RowSpan="2"
+                   Height="16"
+                   Width="16"
+                   DockPanel.Dock="Left"/>
+              </Button>
+            </StackPanel>-->
+          </Grid>
+        </SplitView.Pane>
+
+        <reactiveUi:RoutedViewHost
+          Grid.Row="1"
+          Router="{Binding Router}">
+          <reactiveUi:RoutedViewHost.DefaultContent>
+            <TextBlock Text="Default Content" />
+          </reactiveUi:RoutedViewHost.DefaultContent>
+        </reactiveUi:RoutedViewHost>
+      </SplitView>
+    </Grid>
+  </Panel>
+</Window>
