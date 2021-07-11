@@ -72,19 +72,19 @@
       <TextBox Margin="5"
             Grid.Column="1"
             Grid.Row="0"
-            Watermark="ex: http(s)://"
+            Watermark="ex: MyGotifyServer"
             Text="{Binding ServerName}"
             ToolTip.Tip="Server Name"/>
       <TextBox Margin="5"
             Grid.Column="1"
             Grid.Row="1"
-            Watermark="Client Name"
+            Watermark="ex: MyClient"
             Text="{Binding ClientName}"
             ToolTip.Tip="Client Name"/>
       <TextBox Margin="5"
             Grid.Column="1"
             Grid.Row="2"
-            Watermark="Server Url"
+            Watermark="ex: Watermark="ex: http(s)://"
             Text="{Binding Url}"
             ToolTip.Tip="Server Url"/>
       <TextBox Margin="5"
