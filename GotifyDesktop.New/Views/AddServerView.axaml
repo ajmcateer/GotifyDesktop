@@ -84,7 +84,7 @@
       <TextBox Margin="5"
             Grid.Column="1"
             Grid.Row="2"
-            Watermark="ex: Watermark="ex: http(s)://"
+            Watermark="ex: http(s)://example.com"
             Text="{Binding Url}"
             ToolTip.Tip="Server Url"/>
       <TextBox Margin="5"
