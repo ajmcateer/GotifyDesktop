@@ -10,7 +10,7 @@ In no particular order.
 
 - [x] Add support for Toast Notifications(Blocked Until: https://github.com/AvaloniaUI/Avalonia/pull/3389) 
 - [x] Code Cleanup
-- [-] Better App Notifications (Partially implemented needs some more improvement)
+- [ ] Better App Notifications (Partially implemented needs some more improvement)
 - [ ] Respect OS Convetions for file storage
 - [ ] Server Information
 - [ ] Send and Delete messages
