@@ -8,9 +8,9 @@ It is written in C# using Avalonia for the GUI. This allows the same code to run
 
 In no particular order.
 
-- [ ] Add support for Toast Notifications(Blocked Until: https://github.com/AvaloniaUI/Avalonia/pull/3389) 
-- [ ] Code Cleanup
-- [ ] Better App Notifications
+- [x] Add support for Toast Notifications(Blocked Until: https://github.com/AvaloniaUI/Avalonia/pull/3389) 
+- [x] Code Cleanup
+- [-] Better App Notifications (Partially implemented needs some more improvement)
 - [ ] Respect OS Convetions for file storage
 - [ ] Server Information
 - [ ] Send and Delete messages
